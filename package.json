@@ -4,6 +4,7 @@
   "description": "[insert here]",
   "author": "Andrew Sameh Adel",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "node index.js"
   },
@@ -15,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/acskii/chain/issues"
   },
-  "homepage": "https://github.com/acskii/chain#readme"
+  "homepage": "https://github.com/acskii/chain#readme",
+  "dependencies": {
+    "mongoose": "^9.2.2"
+  }
 }
