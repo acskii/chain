@@ -1,3 +1,6 @@
+# Docker Compose
+secrets/
+
 # Logs
 logs
 *.log
