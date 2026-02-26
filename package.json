@@ -1,0 +1,19 @@
+{
+  "name": "chain",
+  "version": "1.0.0",
+  "description": "[insert here]",
+  "author": "Andrew Sameh Adel",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/acskii/chain.git"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/acskii/chain/issues"
+  },
+  "homepage": "https://github.com/acskii/chain#readme"
+}
