@@ -10,7 +10,7 @@ const executionSchema = new Schema({
         type: Map,
         of: Schema.Types.Mixed // Allows for strings (user input) or objects (file data)
     },
-    response: String
+    response: { type: String, required: true }
 }, { timestamps: true });
 
 export default model('Execution', executionSchema);
