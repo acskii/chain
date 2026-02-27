@@ -15,4 +15,4 @@ const executionSchema = new Schema({
     status: { type: String, enum: ['success', 'error', 'pending'], default: 'pending' }
 }, { timestamps: true });
 
-export const Execution = model('Execution', executionSchema);
+export default Execution = model('Execution', executionSchema);
