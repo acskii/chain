@@ -1,6 +1,6 @@
 import { Chain } from "../models/chain.js";
 
-export const chainInterface = {
+export default chainInterface = {
     /* READ */
     async getAllChains(page = 1, limit = 10) {
         // Get all chains paginated

@@ -23,4 +23,4 @@ const chainSchema = new Schema({
     steps: [stepSchema]
 }, { timestamps: true });
 
-export const Chain = model('Chain', chainSchema);
+export default Chain = model('Chain', chainSchema);
