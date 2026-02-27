@@ -7,8 +7,7 @@ export default executionInterface = {
         return await Execution.create({
             chainId,
             stepInputs,
-            finalResponse,
-            status: 'success'
+            response
         });
     },
 
@@ -21,7 +20,19 @@ export default executionInterface = {
         ]);
         
         return { data, total, page, totalPages: Math.ceil(total / limit) };
-    }
+    },
 
-    // getExecutionById
+    async getAllExecutions(page = 0, limit = 10) {
+        const skip = (page - 1) * limit;
+        return await Execution.find({}).skip(skip).limit(limit).sort({ createdAt: -1 });
+    },
+
+    async getExecutionById(id) {
+        return Execution.findById(id);
+    },
+
+    /* DELETE */
+    async deleteExecutions(chainId) {
+        return await Execution.deleteMany({ chainId });
+    },
 };
