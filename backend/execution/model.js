@@ -13,4 +13,4 @@ const executionSchema = new Schema({
     response: String
 }, { timestamps: true });
 
-export default Execution = model('Execution', executionSchema);
+export default model('Execution', executionSchema);
