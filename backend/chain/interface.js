@@ -1,6 +1,6 @@
-import { Chain } from "../models/chain.js";
+import Chain from "./model.js";
 
-export default chainInterface = {
+export default {
     /* READ */
     async getAllChains(page = 1, limit = 10) {
         // Get all chains paginated
