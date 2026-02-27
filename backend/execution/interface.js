@@ -1,6 +1,6 @@
-import { Execution } from "../models/execution.js";
+import Execution from "./model.js";
 
-export default executionInterface = {
+export default {
     /* CREATE */
     // Record a completed run of a chain
     async createExecution(chainId, stepInputs, response) {
