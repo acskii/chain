@@ -27,7 +27,7 @@ export default {
         return await Chain.findByIdAndUpdate(
             chainId,
             { $push: { steps: stepData } },
-            { new: true, runValidators: true }
+            { returnDocument: 'after', runValidators: true }
         );
     },
 
@@ -42,19 +42,21 @@ export default {
         return await Chain.findByIdAndUpdate(
             chainId,
             { $pull: { steps: { _id: stepId } } },
-            { new: true }
+            { returnDocument: 'after' }
         );
     },
 
     /* UPDATE */
-    async updateChain(id, { name, steps }) {        
+    async updateChain(id, { name, steps }) {    
+        const updateData  = {};
+        
         if (name) updateData.name = name;
         if (steps) updateData.steps = steps;
 
         return await Chain.findByIdAndUpdate(
             id,
             { $set: updateData },
-            { new: true, runValidators: true }
+            { returnDocument: 'after', runValidators: true }
         );
     },
 };
