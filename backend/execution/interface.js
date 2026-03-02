@@ -35,4 +35,13 @@ export default {
     async deleteExecutions(chainId) {
         return await Execution.deleteMany({ chainId });
     },
+
+    /* UPDATE */
+    async updateExecution(id, update) {
+        return await Execution.findByIdAndUpdate(
+            id,
+            { $set: update },
+            { returnDocument: 'after', runValidators: true }
+        );
+    }
 };
