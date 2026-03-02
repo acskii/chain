@@ -19,6 +19,7 @@
   "homepage": "https://github.com/acskii/chain#readme",
   "dependencies": {
     "express": "^5.2.1",
-    "mongoose": "^9.2.2"
+    "mongoose": "^9.2.2",
+    "openai": "^6.25.0"
   }
 }
