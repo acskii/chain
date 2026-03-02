@@ -16,7 +16,7 @@ router.post('/', createOne);
 /* /chain/{id} */
 router.get('/:id', getOne);
 
-router.post('/:id', updateOne);
+router.patch('/:id', updateOne);
 
 router.delete('/:id', deleteOne);
 
