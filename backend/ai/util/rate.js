@@ -12,18 +12,18 @@ import getAPIKey from "./key";
 
 const PROVIDER_NAME = process.env.PROVIDER_NAME;
 
-export function getAvailableCalls() {
+export async function getAvailableCalls() {
     const apiKey = getAPIKey();
     switch (PROVIDER_NAME) {
         case "openrouter":
-            return getRemainingUsage(apiKey);
+            return await getRemainingUsage(apiKey);
     }
 }
 
-export function getKeyInfo() {
+export async function getKeyInfo() {
     const apiKey = getAPIKey();
     switch (PROVIDER_NAME) {
         case "openrouter":
-            return getInfoUsage(apiKey);
+            return await getInfoUsage(apiKey);
     }
 }

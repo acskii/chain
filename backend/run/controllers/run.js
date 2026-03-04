@@ -11,7 +11,8 @@ export const runChain = async (req, res) => {
         const chain = await chainInterface.getChainById(chainId);
         if (!chain) return res.status(404).json({ error: "Chain not found" });
 
-        const usage = getAvailableCalls();
+        const usage = await getAvailableCalls();
+        console.log(usage);
         // check if limit exceeded before running
         if (usage != 0) {
             const execution = await executionInterface.createExecution(

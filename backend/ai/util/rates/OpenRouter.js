@@ -4,9 +4,9 @@
 
 import getUsageData from "./General";
 
-export function getRemainingUsage(apiKey) {
+export async function getRemainingUsage(apiKey) {
     // Get general response from endpoint
-    const response = getUsageData(apiKey);
+    const response = await getUsageData(apiKey);
 
     // Only return the remaining usage of the API key
     const { limit_remaining } = response.data;
@@ -14,9 +14,9 @@ export function getRemainingUsage(apiKey) {
     return limit_remaining ?? 999;  // 999 means infinite
 };
 
-export function getInfoUsage(apiKey) {
+export async function getInfoUsage(apiKey) {
     // Get general response from endpoint
-    const response = getUsageData(apiKey);
+    const response = await getUsageData(apiKey);
 
     // Return the usage of the API key
     // Check: https://openrouter.ai/docs/api/reference/limits
