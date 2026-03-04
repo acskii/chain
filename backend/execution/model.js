@@ -4,8 +4,10 @@ import { Schema, model } from "mongoose";
 // A log record of chain execution that records
 //      - Individual step user inputs
 //      - Final chain response
+//      - Hash relating to step inputs 
 const executionSchema = new Schema({
     chainId: { type: Schema.Types.ObjectId, ref: 'Chain', required: true },
+    runHash: { type: String, index: true },
     status: { type: String, enum: ['pending', 'error', 'success'], default: 'pending' },
     stepInputs: {
         type: Map,

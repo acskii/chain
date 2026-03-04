@@ -3,11 +3,12 @@ import Execution from "./model.js";
 export default {
     /* CREATE */
     // Record a completed run of a chain
-    async createExecution(chainId, stepInputs, response) {
+    async createExecution(chainId, stepInputs, response, runHash) {
         return await Execution.create({
             chainId,
             stepInputs,
-            response
+            response,
+            runHash
         });
     },
 
@@ -29,6 +30,13 @@ export default {
 
     async getExecutionById(id) {
         return Execution.findById(id);
+    },
+
+    async findSuccessfulByHash(hash) {
+        return await Execution.findOne({ 
+            runHash: hash, 
+            status: 'success' 
+        }).sort({ createdAt: -1 });
     },
 
     /* DELETE */
