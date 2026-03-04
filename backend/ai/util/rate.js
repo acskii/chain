@@ -17,6 +17,8 @@ export async function getAvailableCalls() {
     switch (PROVIDER_NAME) {
         case "openrouter":
             return await getRemainingUsage(apiKey);
+        default: 
+            return 1;   // For testing
     }
 }
 

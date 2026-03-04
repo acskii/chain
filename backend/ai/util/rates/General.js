@@ -17,7 +17,7 @@ export default async function getUsageData(apiKey) {
             headers: { Authorization: `Bearer ${apiKey}` }
         });
         
-        return await response.json();
+        return response.data;
     }
     
   } catch (error) {
