@@ -7,8 +7,8 @@
 
 */
 
-import { getRemainingUsage, getInfoUsage } from "./rates/OpenRouter";
-import getAPIKey from "./key";
+import { getRemainingUsage, getInfoUsage } from "./rates/OpenRouter.js";
+import getAPIKey from "./key.js";
 
 const PROVIDER_NAME = process.env.PROVIDER_NAME;
 

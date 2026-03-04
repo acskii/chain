@@ -2,7 +2,7 @@
     Implementation of rate limit and usage limit checking for OpenRouter
 */
 
-import getUsageData from "./General";
+import getUsageData from "./General.js";
 
 export async function getRemainingUsage(apiKey) {
     // Get general response from endpoint
