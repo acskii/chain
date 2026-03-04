@@ -1,10 +1,12 @@
+/* 
+    Service for the purpose of running a given chain 
+*/
+
 import { call } from "../ai/service.js";
 import executionInterface from "../execution/interface.js";
 
-/* Service for the purpose of running a given chain */
-
-export const startPipeline = async (executionId, chain, stepInputs) => {
-    let conversationHistory = [];
+export default async function startPipeline(executionId, chain, stepInputs) {
+    let lastResponse = "";
 
     try {
         await executionInterface.updateExecution(executionId, { 
@@ -13,32 +15,31 @@ export const startPipeline = async (executionId, chain, stepInputs) => {
         });
 
         for (const step of chain.steps.sort((a, b) => a.order - b.order)) {
-            let currentPrompt = step.prompt;
+            let finalPrompt = "";
 
-            if (step.stepType === 'input' && stepInputs[step.order]) {
-                currentPrompt = `${currentPrompt}\n\nUser Input: ${stepInputs[step.order]}`;
+            if (lastResponse) {
+                finalPrompt += `CONTEXT FROM PREVIOUS STEP:\n${lastResponse}\n\n`;
             }
 
-            if (step.stepType === 'file' && stepInputs[step.order]) {
-                currentPrompt = `${currentPrompt}\n\nFile Content: ${stepInputs[step.order]}`;
+            finalPrompt += `CURRENT STEP:\n${step.prompt}\n\n`;
+
+            if (stepInputs[step.order]) {
+                finalPrompt += `${step.type == 'input' ? "USER INPUT" : "FILE CONTENT"} FOR THIS STEP:\n${stepInputs[step.order]}\n\n`;
             }
 
-            const response = await call([...conversationHistory, { role: 'user', content: currentPrompt }]);
-
-            // update message history
-            conversationHistory.push({ role: 'user', content: currentPrompt });
-            conversationHistory.push({ role: 'assistant', content: response });
+            const response = await call([{ role: 'user', content: finalPrompt }]);
+            lastResponse = response;
 
             // update execution progress
             await executionInterface.updateExecution(executionId, {
                 'progress.currentStep': step.order,
-                'progress.lastStepOutput': response
+                'progress.lastStepOutput': lastResponse
             });
         }
 
         await executionInterface.updateExecution(executionId, {
             status: 'success',
-            response: conversationHistory[conversationHistory.length - 1].content
+            response: lastResponse
         });
 
     } catch (error) {
@@ -49,5 +50,3 @@ export const startPipeline = async (executionId, chain, stepInputs) => {
         });
     }
 };
-
-export default startPipeline;
