@@ -44,7 +44,7 @@ export default async function startPipeline(executionId, chain, stepInputs) {
 
     } catch (error) {
         console.log("[PIPELINE] => Error occured during chain execution: ", error);
-        await executionInterface.updateStatus(executionId, {
+        await executionInterface.updateExecution(executionId, {
             status: 'error',
             errorDetails: error.message
         });
