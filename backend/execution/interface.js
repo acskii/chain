@@ -25,7 +25,12 @@ export default {
 
     async getAllExecutions(page = 0, limit = 10) {
         const skip = (page - 1) * limit;
-        return await Execution.find({}).skip(skip).limit(limit).sort({ createdAt: -1 });
+        const [data, total] = await Promise.all([
+            Execution.find({}).skip(skip).limit(limit).sort({ createdAt: -1 }),
+            Execution.countDocuments({})
+        ]);
+        
+        return { data, total, page, totalPages: Math.ceil(total / limit) };
     },
 
     async getExecutionById(id) {
