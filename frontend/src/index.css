@@ -5,7 +5,7 @@
 @tailwind utilities;
 
 :root {
-  font-size: 22px; /* Global base size */
+  font-size: 12px; /* Global base size */
 }
 
 body {
