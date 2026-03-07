@@ -1,13 +1,13 @@
-import { Home, Link, MemoryStick, Menu, Settings } from "lucide-react";
+import { LuHouse, LuLink, LuMemoryStick, LuMenu, LuSettings } from "react-icons/lu";
 import { useApp } from '../../contexts/AppContext';
-import { Link as Route } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 
 const MENU_ITEMS = [
-    {route: "/", label: "Home", icon: Home},
-    {route: "/chains", label: "Chains", icon: Link},
-    {route: "/executions", label: "Executions", icon: MemoryStick},
-    {route: "/settings", label: "Settings", icon: Settings},
+    {route: "/", label: "Home", icon: LuHouse},
+    {route: "/chains", label: "Chains", icon: LuLink},
+    {route: "/executions", label: "Executions", icon: LuMemoryStick},
+    {route: "/settings", label: "Settings", icon: LuSettings},
 ];
 
 export default function SideMenu() {
@@ -25,7 +25,7 @@ export default function SideMenu() {
                 onClick={() => setSidebarExpanded(!isSidebarExpanded)}
                 className="flex cursor-pointer items-center mb-8 text-gray-400 hover:text-white transition-colors"
             >
-                <Menu size={30} />
+                <LuMenu size={30} />
             </button>
 
             <div className="flex flex-col gap-2">
@@ -34,7 +34,7 @@ export default function SideMenu() {
                     const isActive = location.pathname === item.route;
 
                     return (
-                        <Route 
+                        <Link 
                             key={item.route}
                             to={item.route} 
                             className={`
@@ -62,7 +62,7 @@ export default function SideMenu() {
                                     <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-2 bg-gray-800 border-l border-b border-gray-700 rotate-45" />
                                 </div>
                             )}
-                        </Route>
+                        </Link>
                     );
                 })}
             </div>
