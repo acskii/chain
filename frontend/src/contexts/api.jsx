@@ -11,9 +11,9 @@ const run = axios.create({
 })
 
 export const executionAPI = {
-  getStatus: async (executionId) => api.get(`/execution/${executionId}`),
+  getOne: async (id) => api.get(`/execution/${id}`),
   getByChain: async (chainId) => api.get(`/execution/chain/${chainId}`),
-  getAll: async (params) => api.get('/execution', { params }),
+  getAll: async (page = 1) => api.get('/execution', { page }),
   delete: async (id) => api.delete(`/execution/${id}`)
 };
 
