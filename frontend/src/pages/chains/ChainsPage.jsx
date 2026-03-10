@@ -75,7 +75,7 @@ export default function ChainsPage() {
 
       {loading && <LoadingIcon />}
 
-      {(chains.length == 0) && (
+      {(chains.length == 0 && !loading) && (
         <div className="flex flex-col items-center justify-center text-center">
           <div className="bg-gray-800/30 p-10 rounded-full mb-4">
             <FaQuestion size={60} className="text-gray-600 animate-pulse" />
