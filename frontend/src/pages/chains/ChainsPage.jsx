@@ -1,20 +1,35 @@
+/* Imports */
+/* React */
 import { useEffect, useState } from 'react';
+
+/* Contexts */
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../contexts/ToastContext';
+
+/* API Backend */
 import { chainAPI } from '../../contexts/api';
+
+/* Components */
 import Pagination from '../../components/general/Pagination';
+import LoadingIcon from '../../components/general/LoadingIcon';
+
+/* Icons */
 import { LuPlay, LuPlus, LuClock, LuList } from 'react-icons/lu';
 import { FaQuestion } from "react-icons/fa";
-import { BiLoaderCircle } from "react-icons/bi";
+/* --- */
 
 export default function ChainsPage() {
-  const [loading, setLoading] = useState(true);
+  /* Contexts */
   const navigate = useNavigate();
   const { showToast } = useToast();
+
+  /* States */
+  const [loading, setLoading] = useState(true);
   const [chains, setChains] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
+  /* Get user chains based on pagination */ 
   const fetchChains = async (pageNumber) => {
     try {
       const res = await chainAPI.getAll(pageNumber);
@@ -32,14 +47,16 @@ export default function ChainsPage() {
     }
   };
 
+  /* At first load */
   useEffect(() => {
-    fetchChains(page);
+    // Load first page of chains
+    fetchChains(1);
   }, []);
 
   return (
     <div className="max-w-6xl mx-auto">
       <div className="flex justify-between items-center mb-10">
-        <h2 className="text-4xl font-bold">Your Prompt Chains</h2>
+        <h2 className="text-4xl font-bold">Your Chains</h2>
         <button 
           onClick={() => chainAPI.create("New Chain").then(res => navigate(`/run/${res.data._id}`))}
           className="bg-emerald-600 hover:bg-emerald-500 px-6 py-3 rounded-xl flex items-center gap-2 transition-all"
@@ -48,11 +65,7 @@ export default function ChainsPage() {
         </button>
       </div>
 
-      {loading && (
-        <div className="flex h-full items-center justify-center">
-          <BiLoaderCircle className="animate-spin text-blue-500" size={48} />
-        </div>
-      )}
+      {loading && <LoadingIcon />}
 
       {(chains.length == 0) && (
         <div className="flex flex-col items-center justify-center text-center">
