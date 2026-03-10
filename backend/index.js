@@ -1,3 +1,8 @@
+/*
+    Written by: Andrew Sameh Adel
+    Main program file
+*/
+
 import express from "express";
 import { createConnection } from "./db.js";
 import chainRoutes from "./chain/route.js";
