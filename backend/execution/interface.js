@@ -1,22 +1,26 @@
 import Execution from "./model.js";
+import Chain from "../chain/model.js";
 
 export default {
     /* CREATE */
     // Record a completed run of a chain
-    async createExecution(chainId, stepInputs, response, runHash) {
+    async createExecution(chainId, stepInputs, response, runHash, chainHash) {
         return await Execution.create({
             chainId,
             stepInputs,
             response,
-            runHash
+            runHash,
+            chainHash
         });
     },
 
     /* READ */
     async getExecutionsByChain(chainId, page = 0, limit = 10) {
         const skip = (page - 1) * limit;
+        const chain = await Chain.findById(chainId);
+        const chainHash = chain.hash;
         const [data, total] = await Promise.all([
-            Execution.find({ chainId }).skip(skip).limit(limit).sort({ createdAt: -1 }),
+            Execution.find({ chainHash: chainHash }).skip(skip).limit(limit).sort({ createdAt: -1 }),
             Execution.countDocuments({})
         ]);
         

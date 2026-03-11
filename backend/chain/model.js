@@ -20,6 +20,7 @@ const stepSchema = new Schema({
 // NOTE: Each chain will belong to a user, this will be implemented later
 const chainSchema = new Schema({
     name: { type: String, required: true, trim: true },
+    hash: { type: String, required: true },
     steps: [stepSchema]
 }, { timestamps: true });
 

@@ -24,7 +24,7 @@ export const runChain = async (req, res) => {
         }
 
         // Create hash for execution index
-        const runHash = hash({ chainId, stepInputs });
+        const runHash = hash({ hash: chain.hash, inputs: stepInputs });
 
         const cached = await executionInterface.findSuccessfulByHash(runHash);
         if (cached) {
@@ -35,26 +35,31 @@ export const runChain = async (req, res) => {
                 response: cached.response
             });
         } else {
-            const usage = await getAvailableCalls();
-            console.log(usage);
-            // check if limit exceeded before running
-            if (usage != 0) {
-                const execution = await executionInterface.createExecution(
-                    chainId, 
-                    stepInputs, 
-                    "pending..",
-                    runHash 
-                );
+            if (chain.steps.length > 0) {
+                const usage = await getAvailableCalls();
+                console.log(usage);
+                // check if limit exceeded before running
+                if (usage != 0) {
+                    const execution = await executionInterface.createExecution(
+                        chainId, 
+                        stepInputs, 
+                        "pending..",
+                        runHash,
+                        chain.hash
+                    );
 
-                startPipeline(execution._id, chain, stepInputs);
+                    startPipeline(execution._id, chain, stepInputs);
 
-                res.status(202).json({ 
-                    message: "Chain started", 
-                    isCached: false,
-                    executionId: execution._id 
-                });
+                    res.status(202).json({ 
+                        message: "Chain started", 
+                        isCached: false,
+                        executionId: execution._id 
+                    });
+                } else {
+                    res.status(429).json({ message: "API key limit exceeded", error: -2 });
+                }
             } else {
-                res.status(429).json({ message: "API key limit exceeded" });
+                res.status(200).json({ message: "Chain has no steps", error: -1 });
             }
         }
   } catch (error) {
