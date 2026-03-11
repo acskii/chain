@@ -1,29 +1,45 @@
+/* Imports */
+/* React */
 import { useState, useEffect, useRef } from 'react';
+
+/* Contexts */
+import { useToast } from '../../contexts/ToastContext';
 import { useParams } from 'react-router-dom';
+
+/* API Backend */
 import { chainAPI, executionAPI } from '../../contexts/api';
-import { useApp } from '../../contexts/AppContext';
+
+/* Components */
 import StepLevel from '../../components/runChain/StepLevel';
 import AddStepNode from '../../components/runChain/AddStepNode';
 import ExecutionResult from '../../components/runChain/ExecutionResult';
-import { LuPlay, LuSave, LuRotateCcw, LuChevronDown, LuHistory } from 'react-icons/lu';
-import { BiLoaderCircle } from "react-icons/bi";
+import LoadingIcon from '../../components/general/LoadingIcon';
+import ChainHead from '../../components/runChain/ChainHead';
 
-export default function RunChainPage() {
+/* Icons */
+import { LuPlay, LuSave, LuRotateCcw, LuChevronDown, LuHistory } from 'react-icons/lu';
+import { BiLoader } from "react-icons/bi";
+/* --- */
+
+export default function BuilderPage() {
   const { id } = useParams();
-  const { showToast } = useApp();
+  const { showToast } = useToast();
   
-  // State
+  /* States */
   const [chain, setChain] = useState(null);
   const [steps, setSteps] = useState([]);
-  const [stepInputs, setStepInputs] = useState({}); // Stores { "1": "text", "2": "fileContent" }
+
+  const [stepInputs, setStepInputs] = useState({});
+  
   const [executionHistory, setExecutionHistory] = useState([]);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   
-  // Execution & Polling State
   const [executingId, setExecutingId] = useState(null);
-  const [status, setStatus] = useState('idle'); // idle, pending, processing, success, error
+  
+  const [status, setStatus] = useState('idle');
   const [currentStepProgress, setCurrentStepProgress] = useState(0);
   const [finalResponse, setFinalResponse] = useState(null);
+  
   const [hasChanges, setHasChanges] = useState(false);
   
   const pollTimer = useRef(null);
@@ -39,17 +55,22 @@ export default function RunChainPage() {
       const res = await chainAPI.getOne(id);
       setChain(res.data);
       setSteps(res.data.steps.sort((a, b) => a.order - b.order));
-    } catch (err) {
-      showToast("Failed to load chain", "error");
+    } catch (error) {
+      if (error.status && error.status == 500) {
+        showToast("Server Connection Error, please try again later", "error", true);
+      } else {
+        showToast(error.message, "error", true);
+      }
     }
   };
 
+  /* Load Execution History for open chain */
   const loadExecutionHistory = async () => {
     try {
-      const res = await executionAPI.getAll({ chainId: id });
+      const res = await executionAPI.getByChain(id);
       setExecutionHistory(res.data.data);
-    } catch (err) {
-      console.error("History load error", err);
+    } catch (error) {
+      showToast("Unable to load past executions..", "error");
     }
   };
 
@@ -62,6 +83,11 @@ export default function RunChainPage() {
         updatedSteps[index].prompt = newValue;
         setSteps(updatedSteps);
         setHasChanges(true);    
+    };
+
+    const handleNameChange = (newName) => {
+      setChain(prev => ({ ...prev, name: newName }));
+      setHasChanges(true);
     };
 
   const preloadInputs = (historyItem) => {
@@ -82,7 +108,7 @@ export default function RunChainPage() {
     };
 
   const handleRun = async () => {
-    if (status === 'processing' || status === 'pending') return;
+    if (status === 'pending') return;
     
     setFinalResponse(null);
     setCurrentStepProgress(0);
@@ -112,7 +138,7 @@ export default function RunChainPage() {
 
         pollTimer.current = setInterval(async () => {
             try {
-            const res = await executionAPI.getStatus(execId);
+            const res = await executionAPI.getOne(execId);
             const { status: serverStatus, progress, response } = res.data;
 
             // Force React to acknowledge the change by using the functional update
@@ -160,13 +186,13 @@ export default function RunChainPage() {
         showToast("Editor unlocked");
     };
 
-  if (!chain) return <div className="flex h-full items-center justify-center"><BiLoaderCircle className="animate-spin text-blue-500" size={48} /></div>;
+  /* Show load until chain loads from server */
+  if (!chain) return <LoadingIcon />;
 
   return (
     <div className="flex flex-col h-full relative">
       {/* Title Bar */}
       <div className="flex justify-between items-center mb-8 border-b border-gray-800 pb-4 sticky top-0 bg-[#0f1117] z-20">
-        <h2 className="text-3xl font-bold text-blue-400 uppercase tracking-tighter">{chain.name}</h2>
         
         {/* Preload Dropdown */}
         <div className="relative">
@@ -206,33 +232,55 @@ export default function RunChainPage() {
       </div>
 
       {/* Main Flow Canvas */}
-      <div className="flex-1 space-y-6 pb-40 max-w-4xl mx-auto w-full">
-        {steps.map((step, index) => (
-          <StepLevel 
-            key={index} 
-            step={step} 
-            inputValue={stepInputs[step.order] || ""}
-            onInputChange={(val) => handleInputChange(step.order, val)}
-            onPromptChange={(val) => handlePromptChange(step.order - 1, val)}
-            isActive={status === 'pending' && currentStepProgress === step.order}
-            isCompleted={currentStepProgress > step.order || (status === 'success' && currentStepProgress >= step.order)}
-            onDelete={() => handleStepDelete(index)}
+      <div className="flex-1 pb-40 max-w-4xl mx-auto w-full">
+          <ChainHead 
+            name={chain.name} 
+            onChange={handleNameChange} 
           />
-        ))}
 
-        {finalResponse && (
-          <ExecutionResult response={finalResponse} onClear={() => setFinalResponse(null)} />
-        )}
+          <div className="space-y-0 flex flex-col items-center">
+            {steps.map((step, index) => (
+              <div key={index} className="w-full flex flex-col items-center">
+                {index == 0 && (
+                  <div className="relative h-12 flex flex-col items-center">
+                    <div className="w-[2px] h-full bg-gray-800"></div>
+                </div>
+                )}
+                <StepLevel 
+                  step={step} 
+                  inputValue={stepInputs[step.order] || ""}
+                  onInputChange={(val) => handleInputChange(step.order, val)}
+                  onPromptChange={(val) => handlePromptChange(step.order - 1, val)}
+                  isActive={status === 'pending' && currentStepProgress === step.order}
+                  isCompleted={currentStepProgress > step.order || (status === 'success' && currentStepProgress >= step.order)}
+                  onDelete={() => handleStepDelete(index)}
+                />
+                {index < steps.length - 1 && (
+                  <div className="relative h-20 flex flex-col items-center">
+                    <div className="w-[2px] h-full bg-gray-800"></div>
+                    
+                    <div className="absolute top-1/2 -translate-y-1/2 bg-[#0f1117] border border-gray-800 rounded-full p-1 shadow-sm">
+                        <LuChevronDown size={14} className="text-gray-600" />
+                    </div>
+                </div>
+                )}
+              </div>
+            ))}
 
-        <AddStepNode onAdd={(type) => {
-            const newSteps = [...steps, { order: steps.length + 1, type: type, prompt: "" }];
-            setSteps(newSteps);
-            setHasChanges(true);
-        }} />
+            {finalResponse && (
+              <ExecutionResult response={finalResponse} onClear={() => setFinalResponse(null)} />
+            )}
+
+            <AddStepNode onAdd={(type) => {
+                const newSteps = [...steps, { order: steps.length + 1, type: type, prompt: "" }];
+                setSteps(newSteps);
+                setHasChanges(true);
+            }} />
+          </div>
       </div>
 
       {/* Control Bottom Bar */}
-      <div className="fixed bottom-0 left-20 right-0 h-24 bg-[#161922] border-t border-gray-800 flex items-center justify-between px-12 z-40 backdrop-blur-md bg-opacity-90">
+      <div className="fixed bottom-0 left-18 right-0 h-24 bg-[#161922] border-t border-gray-800 flex items-center justify-between px-12 z-40 backdrop-blur-md bg-opacity-90">
         <div className="flex items-center gap-4 bg-gray-950 p-2 rounded-2xl border border-gray-800">
            <select className="bg-transparent outline-none text-sm px-4 py-1 text-gray-300">
               <option>google/gemini-2.0-flash:free</option>
@@ -247,7 +295,7 @@ export default function RunChainPage() {
           } w-20 h-20 rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(37,99,235,0.3)] transform active:scale-95 transition-all disabled:opacity-50`}
         >
           {status === 'pending' ? (
-            <LuLoader2 className="animate-spin text-white" size={32} />
+            <BiLoader className="animate-spin text-white" size={32} />
           ) : (
             <LuPlay fill="white" size={32} className="ml-1" />
           )}
