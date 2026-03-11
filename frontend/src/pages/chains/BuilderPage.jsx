@@ -19,6 +19,7 @@ import ChainHead from '../../components/runChain/ChainHead';
 /* Icons */
 import { LuPlay, LuSave, LuRotateCcw, LuChevronDown, LuHistory } from 'react-icons/lu';
 import { BiLoader } from "react-icons/bi";
+import Dropdown from '../../components/general/Dropdown';
 /* --- */
 
 export default function BuilderPage() {
@@ -191,36 +192,33 @@ export default function BuilderPage() {
 
   return (
     <div className="flex flex-col h-full relative">
-      {/* Title Bar */}
-      <div className="flex justify-between items-center mb-8 border-b border-gray-800 pb-4 sticky top-0 bg-[#0f1117] z-20">
-        
-        {/* Preload Dropdown */}
-        <div className="relative">
-          <button 
-            onClick={() => setIsHistoryOpen(!isHistoryOpen)}
-            className="flex items-center gap-2 bg-[#161922] px-4 py-2 rounded-xl border border-gray-700 hover:border-blue-500 transition-all text-sm"
-          >
-            <LuHistory size={18} /> Preload Inputs <LuChevronDown size={16} />
-          </button>
-          
-          {isHistoryOpen && (
-            <div className="absolute right-0 mt-2 w-80 bg-[#1a1d26] border border-gray-700 rounded-2xl shadow-2xl z-50 max-h-96 overflow-y-auto">
-              <div className="p-4 border-b border-gray-800 text-xs font-bold text-gray-500">PAST EXECUTIONS</div>
-              {executionHistory.length === 0 && <div className="p-4 text-sm text-gray-500">No history found</div>}
-              {executionHistory.map(item => (
-                <div 
-                  key={item._id} 
-                  onClick={() => preloadInputs(item)}
-                  className="p-4 hover:bg-blue-500/10 cursor-pointer border-b border-gray-800/50 transition-colors"
-                >
-                  <p className="text-sm font-semibold truncate">{Object.values(item.stepInputs)[0] || "No Input"}</p>
-                  <p className="text-[10px] text-gray-500">{new Date(item.createdAt).toLocaleString()}</p>
-                </div>
-              ))}
-            </div>
+      <div className="fixed right-1/5 top-1/4 -translate-y-1/2 z-50 flex flex-col gap-4">
+        <Dropdown 
+          icon={LuHistory}
+          title="Execution History"
+          data={executionHistory}
+          onSelect={preloadInputs}
+          renderItem={(item) => (
+              <>
+                  <p className="text-sm font-semibold text-gray-200 truncate">
+                      {Object.values(item.stepInputs)[0] || "No Input Provided"}
+                  </p>
+                  <div className="flex justify-between items-center mt-1">
+                      <p className="text-[10px] text-gray-500">
+                          {new Date(item.createdAt).toLocaleDateString()}
+                      </p>
+                      <span className={`text-[9px] px-1.5 py-0.5 rounded border ${
+                          item.status === 'success' ? 'border-emerald-500/30 text-emerald-500' : 'border-rose-500/30 text-rose-500'
+                      }`}>
+                          {item.status}
+                      </span>
+                  </div>
+              </>
           )}
-        </div>
+        />
+      </div>
 
+      <div className="flex justify-between items-center mb-8 border-b border-gray-800 pb-4 sticky top-0 bg-[#0f1117] z-20">
         {(status === 'success' || status === 'error') && (
             <button 
               onClick={resetExecution}
