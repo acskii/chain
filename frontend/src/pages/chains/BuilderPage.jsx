@@ -192,7 +192,7 @@ export default function BuilderPage() {
 
   return (
     <div className="flex flex-col h-full relative">
-      <div className="fixed right-1/5 top-1/4 -translate-y-1/2 z-50 flex flex-col gap-4">
+      <div className="fixed right-1/15 top-1/4 -translate-y-1/2 z-50 flex flex-col gap-4">
         <Dropdown 
           icon={LuHistory}
           title="Execution History"
@@ -219,51 +219,52 @@ export default function BuilderPage() {
       </div>
 
       {/* Main Flow Canvas */}
-      <div className="flex-1 pb-40 max-w-4xl mx-auto w-full">
+      <div className="flex-1 pb-40 px-4 flex flex-col items-center w-full">
           <ChainHead 
             name={chain.name} 
             onChange={handleNameChange} 
           />
 
-          <div className="space-y-0 flex flex-col items-center">
-            {steps.map((step, index) => (
-              <div key={index} className="w-full flex flex-col items-center">
-                {index == 0 && (
-                  <div className="relative h-12 flex flex-col items-center">
-                    <div className="w-[2px] h-full bg-gray-800"></div>
+          {steps.map((step, index) => (
+            <div key={index} className="w-full max-w-5xl">
+              {index == 0 && (
+                <div className="relative h-12 flex flex-col items-center">
+                  <div className="w-[2px] h-full bg-gray-800"></div>
                 </div>
-                )}
-                <StepLevel 
-                  step={step} 
-                  inputValue={stepInputs[step.order] || ""}
-                  onInputChange={(val) => handleInputChange(step.order, val)}
-                  onPromptChange={(val) => handlePromptChange(step.order - 1, val)}
-                  isActive={status === 'pending' && currentStepProgress === step.order}
-                  isCompleted={currentStepProgress > step.order || (status === 'success' && currentStepProgress >= step.order)}
-                  onDelete={() => handleStepDelete(index)}
-                />
-                {index < steps.length - 1 && (
-                  <div className="relative h-20 flex flex-col items-center">
-                    <div className="w-[2px] h-full bg-gray-800"></div>
+              )}
+                
+              <StepLevel 
+                step={step} 
+                inputValue={stepInputs[step.order] || ""}
+                onInputChange={(val) => handleInputChange(step.order, val)}
+                onPromptChange={(val) => handlePromptChange(step.order - 1, val)}
+                isActive={status === 'pending' && currentStepProgress === step.order}
+                isCompleted={currentStepProgress > step.order || (status === 'success' && currentStepProgress >= step.order)}
+                onDelete={() => handleStepDelete(index)}
+              />
+              {index < steps.length - 1 && (
+                <div className="relative h-20 flex flex-col items-center">
+                  <div className="w-[2px] h-full bg-gray-800"></div>
                     
-                    <div className="absolute top-1/2 -translate-y-1/2 bg-[#0f1117] border border-gray-800 rounded-full p-1 shadow-sm">
-                        <LuChevronDown size={14} className="text-gray-600" />
-                    </div>
+                  <div className="absolute top-1/2 -translate-y-1/2 bg-[#0f1117] border border-gray-800 rounded-full p-1 shadow-sm">
+                    <LuChevronDown size={14} className="text-gray-600" />
+                  </div>
                 </div>
-                )}
-              </div>
-            ))}
+              )}
+            </div>
+          ))}
 
-            {finalResponse && (
+          {finalResponse && (
+            <div className="w-full max-w-5xl">
               <ExecutionResult response={finalResponse} onClear={resetExecution} />
-            )}
+            </div>
+          )}
 
-            <AddStepNode onAdd={(type) => {
-                const newSteps = [...steps, { order: steps.length + 1, type: type, prompt: "" }];
-                setSteps(newSteps);
-                setHasChanges(true);
-            }} />
-          </div>
+          <AddStepNode onAdd={(type) => {
+              const newSteps = [...steps, { order: steps.length + 1, type: type, prompt: "" }];
+              setSteps(newSteps);
+              setHasChanges(true);
+          }} />
       </div>
 
       {/* Control Bottom Bar */}
