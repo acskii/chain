@@ -13,13 +13,13 @@ export default function ExecutionResult({ response, onClear }) {
         <div className="flex gap-2">
           <button 
             onClick={() => navigator.clipboard.writeText(response)}
-            className="p-3 bg-gray-800 hover:bg-gray-700 rounded-xl text-gray-400 hover:text-white"
+            className="p-3 bg-gray-800 hover:bg-gray-700 rounded-xl text-gray-400 hover:text-white cursor-pointer"
           >
             <LuCopy size={20} />
           </button>
           <button 
             onClick={onClear}
-            className="p-3 bg-gray-800 hover:bg-red-900/20 rounded-xl text-gray-400 hover:text-red-400"
+            className="p-3 bg-gray-800 hover:bg-red-900/20 rounded-xl text-gray-400 hover:text-red-400 cursor-pointer"
           >
             <LuRefreshCw size={20} />
           </button>
