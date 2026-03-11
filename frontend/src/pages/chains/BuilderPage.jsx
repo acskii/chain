@@ -17,7 +17,8 @@ import LoadingIcon from '../../components/general/LoadingIcon';
 import ChainHead from '../../components/runChain/ChainHead';
 
 /* Icons */
-import { LuPlay, LuSave, LuRotateCcw, LuChevronDown, LuHistory } from 'react-icons/lu';
+import { LuPlay, LuSave, LuRotateCcw, LuChevronDown, LuHistory, LuCpu } from 'react-icons/lu';
+import { FaCheck } from "react-icons/fa";
 import { BiLoader } from "react-icons/bi";
 import Dropdown from '../../components/general/Dropdown';
 /* --- */
@@ -33,7 +34,6 @@ export default function BuilderPage() {
   const [stepInputs, setStepInputs] = useState({});
   
   const [executionHistory, setExecutionHistory] = useState([]);
-  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   
   const [executingId, setExecutingId] = useState(null);
   
@@ -41,6 +41,7 @@ export default function BuilderPage() {
   const [currentStepProgress, setCurrentStepProgress] = useState(0);
   const [finalResponse, setFinalResponse] = useState(null);
   
+  const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   
   const pollTimer = useRef(null);
@@ -93,7 +94,6 @@ export default function BuilderPage() {
 
   const preloadInputs = (historyItem) => {
     setStepInputs(historyItem.stepInputs || {});
-    setIsHistoryOpen(false);
     showToast("Inputs preloaded from history");
   };
 
@@ -168,12 +168,14 @@ export default function BuilderPage() {
 
     const saveChainChanges = async () => {
         try {
+            setIsSaving(true);
             await chainAPI.update(id, { 
                 name: chain.name, 
                 steps: steps 
             });
             setHasChanges(false);
-            showToast("Chain structure updated successfully");
+            setIsSaving(true);
+            showToast("Updated chain successfully", "success");
         } catch (err) {
             showToast("Error saving chain structure", "error");
         }
@@ -213,6 +215,19 @@ export default function BuilderPage() {
                           {item.status}
                       </span>
                   </div>
+              </>
+          )}
+        />
+        <Dropdown 
+          icon={LuCpu}
+          title="AI Models"
+          data={["qwen"]}
+          onSelect={() => console.log("Load Model Feature Coming Soon")}
+          renderItem={(item) => (
+              <>
+                  <p className="text-sm font-semibold text-gray-200 truncate">
+                      {Object.values(item) || "No Input Provided"}
+                  </p>
               </>
           )}
         />
@@ -269,43 +284,62 @@ export default function BuilderPage() {
           />
       </div>
 
-      {/* Control Bottom Bar */}
-      <div className="fixed bottom-0 left-18 right-0 h-24 bg-[#161922] border-t border-gray-800 flex items-center justify-between px-12 z-40 backdrop-blur-md bg-opacity-90">
-        <div className="flex items-center gap-4 bg-gray-950 p-2 rounded-2xl border border-gray-800">
-           <select className="bg-transparent outline-none text-sm px-4 py-1 text-gray-300">
-              <option>google/gemini-2.0-flash:free</option>
-           </select>
+      <div className="fixed bottom-0 left-[48px] right-0 h-24 bg-[#0f1117]/80 border-t border-gray-800 flex items-center justify-between px-12 z-50 backdrop-blur-xl">
+        <div className="flex flex-col">
+          <div className="flex items-center gap-2 mt-1">
+            <div className={`w-2 h-2 rounded-full ${status === 'pending' ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'}`}></div>
+            <span className="text-md font-bold text-gray-200">
+              {status === 'pending' ? `Running Step ${currentStepProgress}...` : "Ready to execute"}
+            </span>
+          </div>
         </div>
 
-        <button 
-          onClick={handleRun}
-          disabled={status === 'pending'}
-          className={`${
-            status === 'processing' ? 'bg-amber-600' : 'bg-blue-600 hover:bg-blue-500'
-          } w-20 h-20 rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(37,99,235,0.3)] transform active:scale-95 transition-all disabled:opacity-50`}
-        >
-          {status === 'pending' ? (
-            <BiLoader className="animate-spin text-white" size={32} />
-          ) : (
-            <LuPlay fill="white" size={32} className="ml-1" />
-          )}
-        </button>
+        <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+          <button 
+            onClick={handleRun}
+            disabled={status === 'pending'}
+            className={`
+              group relative w-40 h-20 cursor-pointer rounded-xl flex items-center gap-2 justify-center transition-all duration-500 transform active:scale-90 disabled:opacity-50
+              ${status === 'pending' 
+                ? 'bg-amber-600 cursor-not-allowed' 
+                : status === 'success' 
+                ? 'bg-green-600 hover:bg-green-500'
+                : 'bg-blue-600 hover:bg-blue-500'
+              }
+            `}
+          >
+            {status === 'pending' ? (
+              <BiLoader className="animate-spin text-white" size={36} />
+            ) : status === 'success' ? (
+              <FaCheck fill="white" size={32} className="ml-1 group-hover:scale-110 transition-transform" />
+            ) : (
+              <LuPlay fill="white" size={32} className="ml-1 group-hover:scale-110 transition-transform" />
+            )}
+          </button>
+        </div>
 
-        <div className="flex gap-4">
-           <button 
-             onClick={() => setStepInputs({})}
-             className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
-           >
-             <LuRotateCcw size={20} /> Clear Inputs
-           </button>
-           {hasChanges && (
-             <button 
-               onClick={saveChainChanges}
-               className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 px-6 py-3 rounded-2xl font-bold transition-all shadow-lg"
-             >
-               <LuSave size={20} /> Save Changes
-             </button>
-           )}
+        <div className="flex items-center gap-6">
+          <button 
+            onClick={() => setStepInputs({})}
+            className="flex items-center gap-2 text-gray-500 hover:text-white font-bold cursor-pointer text-sm uppercase tracking-widest transition-all"
+          >
+            <LuRotateCcw size={18} /> Clear
+          </button>
+
+          {hasChanges && (
+            <button 
+              onClick={saveChainChanges}
+              disabled={isSaving}
+              className="flex items-center gap-2 cursor-pointer bg-[#1c212c] hover:bg-emerald-600 border border-gray-700 hover:border-emerald-500 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-[0.1em] transition-all shadow-lg text-gray-300 hover:text-white"
+            >
+              {isSaving ? (
+                <BiLoader className="animate-spin" size={18} />
+              ) : (
+                <LuSave size={18} />
+              )}
+              {isSaving ? "Saving..." : "Save Changes"}
+            </button>
+          )}
         </div>
       </div>
     </div>
