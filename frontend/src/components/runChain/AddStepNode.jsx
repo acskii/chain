@@ -1,63 +1,68 @@
 import { useState } from 'react';
-import { LuMousePointer2, LuCpu, LuFileJson, LuFileText, LuCheck } from 'react-icons/lu';
+import { LuMousePointer2, LuCpu, LuFileJson, LuFileText, LuPlus, LuX } from 'react-icons/lu';
 
 const NODE_TYPES = [
-  { id: 'input', label: 'Input Node', icon: LuMousePointer2, desc: 'Accepts user text input' },
-  { id: 'internal', label: 'Internal Node', icon: LuCpu, desc: 'Pure AI processing step' },
-  { id: 'output', label: 'Output Node', icon: LuFileJson, desc: 'Formats final response' },
-  { id: 'file', label: 'File Node', icon: LuFileText, desc: 'Injects file contents' },
+  { id: 'input', label: 'Input Node', icon: LuMousePointer2, desc: 'Accepts user text input', color: 'text-purple-400', bg: 'bg-purple-500/10' },
+  { id: 'fixed', label: 'Fixed Node', icon: LuCpu, desc: 'Pure AI processing step', color: 'text-blue-400', bg: 'bg-blue-500/10' },
+  { id: 'output', label: 'Output Node', icon: LuFileJson, desc: 'Formats final response', color: 'text-amber-400', bg: 'bg-amber-500/10' },
+  { id: 'file', label: 'File Node', icon: LuFileText, desc: 'Injects file contents', color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
 ];
 
 export default function AddStepNode({ onAdd }) {
   const [selectedType, setSelectedType] = useState(null);
 
   const handleConfirm = () => {
-    onAdd(selectedType);
+    onAdd(selectedType.id);
     setSelectedType(null);
   };
 
   return (
-    <div className="flex flex-col items-center py-10">
-      <div className="w-px h-12 bg-gray-800 mb-4"></div>
+    <div className="flex flex-col items-center w-full mt-4 pb-20">
+      {/* Connector Line from previous node */}
+      <div className="w-[2px] h-12 bg-gradient-to-b from-gray-800 to-blue-500/20 mb-6"></div>
       
       {!selectedType ? (
-        <div className="flex items-center gap-6">
-          {NODE_TYPES.map((type) => (
-            <div key={type.id} className="group relative">
-              <button
-                onClick={() => setSelectedType(type.id)}
-                className="w-16 h-16 rounded-2xl bg-[#161922] border-2 border-gray-800 flex items-center justify-center hover:border-blue-500 hover:text-blue-400 transition-all"
-              >
-                <type.icon size={28} />
-              </button>
-              {/* Hover Tooltip */}
-              <div className="absolute bottom-20 left-1/2 -translate-x-1/2 scale-0 group-hover:scale-100 transition-all bg-gray-800 text-white text-sm p-3 rounded-xl w-40 text-center pointer-events-none z-50 shadow-xl border border-gray-700">
-                <p className="font-bold">{type.label}</p>
-                <p className="text-xs text-gray-400">{type.desc}</p>
+        <div className="group flex flex-col items-center">
+          <div className="text-[10px] font-black text-gray-600 uppercase tracking-[0.3em] mb-8 group-hover:text-blue-500/50 transition-colors">
+            Add Next Link
+          </div>
+          
+          <div className="flex items-center gap-4 p-3 bg-[#161922]/50 border border-gray-800 rounded-[2rem] backdrop-blur-sm shadow-xl">
+            {NODE_TYPES.map((type) => (
+              <div key={type.id} className="group/item relative">
+                <button
+                  onClick={() => setSelectedType(type)}
+                  className={`w-14 h-14 rounded-xl bg-[#0f1117] cursor-pointer border border-gray-800 flex items-center justify-center hover:border-blue-500 transition-all duration-300`}
+                >
+                  <type.icon size={22} className="text-gray-400 group-hover/item:text-blue-400" />
+                </button>
+                
+                {/* Tooltip */}
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-6 scale-0 group-hover/item:scale-100 transition-all origin-bottom bg-gray-900 p-3 rounded-xl w-50 text-center z-50 pointer-events-none">
+                  <p className={`font-bold text-md uppercase tracking-wider ${type.color}`}>{type.label}</p>
+                  <p className="text-md text-gray-500 mt-1 leading-relaxed">{type.desc}</p>
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-gray-900"></div>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       ) : (
-        <div className="w-full max-w-xl bg-blue-900/10 border-2 border-blue-500 rounded-3xl p-8 flex flex-col items-center gap-6 animate-in fade-in zoom-in duration-300">
-          <h3 className="text-xl font-bold uppercase tracking-widest text-blue-400">
-            Confirm New {selectedType} Node
-          </h3>
-          <div className="flex gap-4">
+          <div className="flex items-center gap-4">
+            <h2 className={`font-bold text-md uppercase tracking-wider ${selectedType.color}`}>{selectedType.label}</h2>
             <button 
               onClick={handleConfirm}
-              className="bg-emerald-600 hover:bg-emerald-500 px-8 py-3 rounded-xl flex items-center gap-2 font-bold"
+              className="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-xl flex items-center gap-3 font-bold text-md transition-all cursor-pointer"
             >
-              <LuCheck size={20} /> Connect to Chain
+              <LuPlus size={18} /> Confirm Connection
             </button>
             <button 
               onClick={() => setSelectedType(null)}
-              className="bg-gray-800 hover:bg-gray-700 px-8 py-3 rounded-xl font-bold"
+              className="bg-gray-800 hover:bg-gray-700 text-gray-400 px-3 py-2 rounded-xl flex items-center gap-2 font-bold text-md transition-all cursor-pointer"
             >
-              Cancel
+              <LuX size={18} /> Cancel
             </button>
           </div>
-        </div>
       )}
     </div>
   );
