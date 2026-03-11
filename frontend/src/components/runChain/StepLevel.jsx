@@ -11,9 +11,6 @@ export default function StepLevel({ step, inputValue, onPromptChange, onDelete, 
         isCompleted ? 'border-emerald-500/40 bg-emerald-500/5' : 
         'border-gray-800 bg-[#161922]'
     }`}>
-      {/* Connector Line */}
-      <div className="absolute -top-6 left-1/2 w-px h-6 bg-gray-800"></div>
-      
       <div className="absolute -top-4 -left-4 w-10 h-10 rounded-xl bg-gray-900 border border-gray-700 flex items-center justify-center font-black text-blue-400 shadow-xl">
         {step.order}
       </div>
