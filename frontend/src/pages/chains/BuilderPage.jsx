@@ -179,13 +179,13 @@ export default function BuilderPage() {
         }
     };
 
-    const resetExecution = () => {
-        setStatus('idle');
-        setCurrentStepProgress(0);
-        setFinalResponse(null);
-        setExecutingId(null);
-        showToast("Editor unlocked");
-    };
+  /* Clear all sign of previous run */
+  const resetExecution = () => {
+    setStatus('idle');
+    setCurrentStepProgress(0);
+    setFinalResponse(null);
+    setExecutingId(null);
+  };
 
   /* Show load until chain loads from server */
   if (!chain) return <LoadingIcon />;
@@ -216,17 +216,6 @@ export default function BuilderPage() {
               </>
           )}
         />
-      </div>
-
-      <div className="flex justify-between items-center mb-8 border-b border-gray-800 pb-4 sticky top-0 bg-[#0f1117] z-20">
-        {(status === 'success' || status === 'error') && (
-            <button 
-              onClick={resetExecution}
-              className="flex items-center gap-2 bg-gray-800 px-4 py-2 rounded-xl border border-gray-600 hover:bg-gray-700 transition-all text-sm text-white"
-            >
-              <LuRotateCcw size={18} /> Edit Chain
-            </button>
-          )}
       </div>
 
       {/* Main Flow Canvas */}
@@ -266,7 +255,7 @@ export default function BuilderPage() {
             ))}
 
             {finalResponse && (
-              <ExecutionResult response={finalResponse} onClear={() => setFinalResponse(null)} />
+              <ExecutionResult response={finalResponse} onClear={resetExecution} />
             )}
 
             <AddStepNode onAdd={(type) => {
