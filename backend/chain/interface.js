@@ -1,5 +1,6 @@
 import Chain from "./model.js";
 import Execution from "../execution/model.js";
+import hash from "./util/hash.js";
 
 export default {
     /* READ */
@@ -21,15 +22,7 @@ export default {
     /* CREATE */
     async createChain(name) {
         // Create an empty chain
-        return await Chain.create({ name, steps: [] });
-    },
-
-    async createStep(chainId, stepData) {
-        return await Chain.findByIdAndUpdate(
-            chainId,
-            { $push: { steps: stepData } },
-            { returnDocument: 'after', runValidators: true }
-        );
+        return await Chain.create({ name, steps: [], hash: hash([]) });
     },
 
     /* DELETE */
@@ -39,20 +32,15 @@ export default {
         return await Chain.findByIdAndDelete(id);
     },
 
-    async removeStep(chainId, stepId) {
-        return await Chain.findByIdAndUpdate(
-            chainId,
-            { $pull: { steps: { _id: stepId } } },
-            { returnDocument: 'after' }
-        );
-    },
-
     /* UPDATE */
     async updateChain(id, { name, steps }) {    
         const updateData  = {};
         
         if (name) updateData.name = name;
-        if (steps) updateData.steps = steps;
+        if (steps) {
+            updateData.steps = steps;
+            updateData.hash = hash([...steps, id]);
+        }
 
         return await Chain.findByIdAndUpdate(
             id,
