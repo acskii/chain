@@ -260,11 +260,13 @@ export default function BuilderPage() {
             </div>
           )}
 
-          <AddStepNode onAdd={(type) => {
+          <AddStepNode 
+            onAdd={(type) => {
               const newSteps = [...steps, { order: steps.length + 1, type: type, prompt: "" }];
               setSteps(newSteps);
               setHasChanges(true);
-          }} />
+            }} 
+          />
       </div>
 
       {/* Control Bottom Bar */}
