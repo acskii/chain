@@ -27,7 +27,7 @@ export default function Dropdown({ icon: Icon, title, data, onSelect, renderItem
         </button>
 
         {open && (
-          <div className="absolute top-12 w-80 bg-[#1c212c] border border-gray-800 rounded-2xl rounded-t-none shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-50 animate-in slide-in-from-right-5 fade-in duration-200">
+          <div className="absolute top-12 right-0 w-80 bg-[#1c212c] border border-gray-800 rounded-2xl rounded-t-none shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-50 animate-in slide-in-from-right-5 fade-in duration-200">
             <div className="p-4 border-b border-gray-800 flex justify-between items-center">
                 <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">{title}</span>
                 <span className="text-[10px] bg-gray-800 px-2 py-0.5 rounded text-gray-400">{data.length} Total</span>

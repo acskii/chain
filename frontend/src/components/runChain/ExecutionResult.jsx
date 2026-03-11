@@ -26,8 +26,8 @@ export default function ExecutionResult({ response, onClear }) {
         </div>
       </div>
       
-      <div className="bg-black/20 p-6 rounded-2xl border border-white/5 text-gray-200 leading-relaxed">
-        <pre className="whitespace-pre-wrap font-sans text-xl">
+      <div className="bg-black/20 p-6 overflow-hidden rounded-2xl border border-white/5 text-gray-200 leading-relaxed">
+        <pre className="whitespace-pre-wrap font-sans text-xl max-h-50 overflow-y-scroll">
           {response}
         </pre>
       </div>
