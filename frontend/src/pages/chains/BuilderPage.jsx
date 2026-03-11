@@ -34,9 +34,6 @@ export default function BuilderPage() {
   const [stepInputs, setStepInputs] = useState({});
   
   const [executionHistory, setExecutionHistory] = useState([]);
-  
-  const [executingId, setExecutingId] = useState(null);
-  
   const [status, setStatus] = useState('idle');
   const [currentStepProgress, setCurrentStepProgress] = useState(0);
   const [finalResponse, setFinalResponse] = useState(null);
@@ -71,6 +68,7 @@ export default function BuilderPage() {
     try {
       const res = await executionAPI.getByChain(id);
       setExecutionHistory(res.data.data);
+      console.log(res);
     } catch (error) {
       showToast("Unable to load past executions..", "error");
     }
@@ -124,8 +122,17 @@ export default function BuilderPage() {
         setCurrentStepProgress(steps.length);
         showToast("Result retrieved from cache");
       } else {
-        setExecutingId(res.data.executionId);
-        startPolling(res.data.executionId);
+        if (res.data.error) {
+          setStatus('error');
+          const err = res.data.error;
+          if (err == -1) {
+            showToast("Chain has no steps", "error");
+          } else if (err == -2) {
+            showToast("API key limit exceeded", "error");
+          }
+        } else {
+          startPolling(res.data.executionId);
+        }
       }
     } catch (err) {
       setStatus('error');
@@ -154,6 +161,7 @@ export default function BuilderPage() {
                 setFinalResponse(response);
                 setCurrentStepProgress(steps.length + 1); // Mark all as complete
                 clearInterval(pollTimer.current);
+                await loadExecutionHistory();
                 showToast("Chain execution complete!", "success");
             } else if (serverStatus === 'error') {
                 clearInterval(pollTimer.current);
@@ -174,8 +182,9 @@ export default function BuilderPage() {
                 steps: steps 
             });
             setHasChanges(false);
-            setIsSaving(true);
+            setIsSaving(false);
             showToast("Updated chain successfully", "success");
+            await loadExecutionHistory();
         } catch (err) {
             showToast("Error saving chain structure", "error");
         }
@@ -289,7 +298,7 @@ export default function BuilderPage() {
           <div className="flex items-center gap-2 mt-1">
             <div className={`w-2 h-2 rounded-full ${status === 'pending' ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'}`}></div>
             <span className="text-md font-bold text-gray-200">
-              {status === 'pending' ? `Running Step ${currentStepProgress}...` : "Ready to execute"}
+              {status === 'pending' ? `Running Step ${currentStepProgress + 1}...` : "Ready to execute"}
             </span>
           </div>
         </div>
@@ -297,7 +306,7 @@ export default function BuilderPage() {
         <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
           <button 
             onClick={handleRun}
-            disabled={status === 'pending'}
+            disabled={status === 'pending' || status === 'success'}
             className={`
               group relative w-40 h-20 cursor-pointer rounded-xl flex items-center gap-2 justify-center transition-all duration-500 transform active:scale-90 disabled:opacity-50
               ${status === 'pending' 

@@ -8,6 +8,7 @@ import { Schema, model } from "mongoose";
 const executionSchema = new Schema({
     chainId: { type: Schema.Types.ObjectId, ref: 'Chain', required: true },
     runHash: { type: String, index: true },
+    chainHash: {type: String, index: true },
     status: { type: String, enum: ['pending', 'error', 'success'], default: 'pending' },
     stepInputs: {
         type: Map,
