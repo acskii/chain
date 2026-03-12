@@ -24,31 +24,33 @@ import Dropdown from '../../components/general/Dropdown';
 /* --- */
 
 export default function BuilderPage() {
+  /* Contexts */
   const { id } = useParams();
   const { showToast } = useToast();
   
   /* States */
   const [chain, setChain] = useState(null);
   const [steps, setSteps] = useState([]);
-
-  const [stepInputs, setStepInputs] = useState({});
-  
   const [executionHistory, setExecutionHistory] = useState([]);
+  const [stepInputs, setStepInputs] = useState({});
+
+  // Booleans
+  const [isSaving, setIsSaving] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
+
+  // Run Progress
   const [status, setStatus] = useState('idle');
   const [currentStepProgress, setCurrentStepProgress] = useState(0);
   const [finalResponse, setFinalResponse] = useState(null);
-  
-  const [isSaving, setIsSaving] = useState(false);
-  const [hasChanges, setHasChanges] = useState(false);
-  
-  const pollTimer = useRef(null);
 
+  /* Load saved data */
   useEffect(() => {
     loadChainData();
     loadExecutionHistory();
     return () => clearInterval(pollTimer.current);
   }, [id]);
 
+  /* Load saved chain */
   const loadChainData = async () => {
     try {
       const res = await chainAPI.getOne(id);
@@ -68,44 +70,48 @@ export default function BuilderPage() {
     try {
       const res = await executionAPI.getByChain(id);
       setExecutionHistory(res.data.data);
-      console.log(res);
     } catch (error) {
       showToast("Unable to load past executions..", "error");
     }
   };
 
-    const handleInputChange = (order, value) => {
-        setStepInputs(prev => ({ ...prev, [order]: value }));
-    };
+  /* Record user inputs in chain steps */
+  const handleInputChange = (order, value) => {
+    setStepInputs(prev => ({ ...prev, [order]: value }));
+  };
 
-    const handlePromptChange = (index, newValue) => {
-        const updatedSteps = [...steps];
-        updatedSteps[index].prompt = newValue;
-        setSteps(updatedSteps);
-        setHasChanges(true);    
-    };
+  /* Update chain structure on prompt change before update */
+  const handlePromptChange = (index, newValue) => {
+    const updatedSteps = [...steps];
+    updatedSteps[index].prompt = newValue;
+    setSteps(updatedSteps);
+    setHasChanges(true);    
+  };
 
-    const handleNameChange = (newName) => {
-      setChain(prev => ({ ...prev, name: newName }));
-      setHasChanges(true);
-    };
+  /* Change chain name before update */
+  const handleNameChange = (newName) => {
+    setChain(prev => ({ ...prev, name: newName }));
+    setHasChanges(true);
+  };
 
+  /* Load step inputs from past execution */
   const preloadInputs = (historyItem) => {
     setStepInputs(historyItem.stepInputs || {});
     showToast("Inputs preloaded from history");
   };
 
-    const handleStepDelete = (index) => {
-        const filteredSteps = steps.filter((_, i) => i !== index);
-        // Re-map orders so they are sequential (1, 2, 3...)
-        const reindexedSteps = filteredSteps.map((step, i) => ({
-            ...step,
-            order: i + 1
-        }));
-        setSteps(reindexedSteps);
-        setHasChanges(true);
-    };
+  /* Re-organise steps upon step delete */
+  const handleStepDelete = (index) => {
+    const filteredSteps = steps.filter((_, i) => i !== index);
+    const reindexedSteps = filteredSteps.map((step, i) => ({
+      ...step,
+      order: i + 1
+    }));
+    setSteps(reindexedSteps);
+    setHasChanges(true);
+  };
 
+  /* Request chain execution using API backend */
   const handleRun = async () => {
     if (status === 'pending') return;
     
@@ -140,62 +146,60 @@ export default function BuilderPage() {
     }
   };
 
-    const startPolling = (execId) => {
-        // Clear any existing timer first to prevent memory leaks
-        if (pollTimer.current) clearInterval(pollTimer.current);
+  /* Request execution status from server every 2 seconds to show live step run */
+  const pollTimer = useRef(null);
 
-        pollTimer.current = setInterval(async () => {
-            try {
-            const res = await executionAPI.getOne(execId);
-            const { status: serverStatus, progress, response } = res.data;
+  const startPolling = (execId) => {
+    // Clear any existing timer first to prevent memory leaks
+    if (pollTimer.current) clearInterval(pollTimer.current);
 
-            // Force React to acknowledge the change by using the functional update
-            setStatus(serverStatus);
+    pollTimer.current = setInterval(async () => {
+      try {
+        const res = await executionAPI.getOne(execId);
+        const { status: serverStatus, progress, response } = res.data;
+        setStatus(serverStatus);
             
-            if (progress) {
-                // Ensure this is treated as a Number for comparison
-                setCurrentStepProgress(Number(progress.currentStep));
-            }
+        if (progress) setCurrentStepProgress(Number(progress.currentStep));
 
-            if (serverStatus === 'success') {
-                setFinalResponse(response);
-                setCurrentStepProgress(steps.length + 1); // Mark all as complete
-                clearInterval(pollTimer.current);
-                await loadExecutionHistory();
-                showToast("Chain execution complete!", "success");
-            } else if (serverStatus === 'error') {
-                clearInterval(pollTimer.current);
-                showToast("Background execution failed", "error");
-            }
-            } catch (err) {
-            console.error("Polling error:", err);
+        if (serverStatus === 'success') {
+          setFinalResponse(response);
+          setCurrentStepProgress(steps.length + 1); // Mark all as complete
+          clearInterval(pollTimer.current);
+          await loadExecutionHistory();
+          showToast("Chain execution complete!", "success");
+        } else if (serverStatus === 'error') {
             clearInterval(pollTimer.current);
-            }
-        }, 2000); // 2-second interval is standard for 2026 UX
-        };
-
-    const saveChainChanges = async () => {
-        try {
-            setIsSaving(true);
-            await chainAPI.update(id, { 
-                name: chain.name, 
-                steps: steps 
-            });
-            setHasChanges(false);
-            setIsSaving(false);
-            showToast("Updated chain successfully", "success");
-            await loadExecutionHistory();
-        } catch (err) {
-            showToast("Error saving chain structure", "error");
+            showToast("Background execution failed", "error");
         }
-    };
+      } catch (err) {
+        console.error("Polling error:", err);
+        clearInterval(pollTimer.current);
+      }
+    }, 2000);
+  };
+
+  /* Update chain changes using API backend */
+  const saveChainChanges = async () => {
+    try {
+      setIsSaving(true);
+      await chainAPI.update(id, { 
+        name: chain.name, 
+        steps: steps 
+      });
+      setHasChanges(false);
+      setIsSaving(false);
+      showToast("Updated chain successfully", "success");
+      await loadExecutionHistory();
+    } catch (err) {
+      showToast("Error saving chain structure", "error");
+    }
+  };
 
   /* Clear all sign of previous run */
   const resetExecution = () => {
     setStatus('idle');
     setCurrentStepProgress(0);
     setFinalResponse(null);
-    setExecutingId(null);
   };
 
   /* Show load until chain loads from server */
@@ -329,7 +333,10 @@ export default function BuilderPage() {
 
         <div className="flex items-center gap-6">
           <button 
-            onClick={() => setStepInputs({})}
+            onClick={() => {
+              setStepInputs({});
+              showToast("Cleared step inputs");
+            }}
             className="flex items-center gap-2 text-gray-500 hover:text-white font-bold cursor-pointer text-sm uppercase tracking-widest transition-all"
           >
             <LuRotateCcw size={18} /> Clear
