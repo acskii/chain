@@ -2,11 +2,11 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { VscGithub } from "react-icons/vsc";
 import { useApp } from './contexts/AppContext';
 import ChainsPage from './pages/chains/ChainsPage';
-import RunChainPage from './pages/chains/run';
 import ExecutionsPage from './pages/executions/ExecutionsPage';
-import HomePage from './pages/home/page';
+import HomePage from './pages/home/HomePage';
 import SettingsPage from './pages/settings/page';
 import SideMenu from './components/general/SideMenu';
+import BuilderPage from './pages/chains/BuilderPage';
 
 export default function App() {
   const { toast } = useApp();
@@ -46,14 +46,9 @@ export default function App() {
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/chains" element={<ChainsPage />} />
             <Route path="/executions" element={<ExecutionsPage />} />
-            <Route path="/run/:id" element={<RunChainPage />} />
+            <Route path="/run/:id" element={<BuilderPage />} />
           </Routes>
         </main>
-
-        {/* Bottom Bar */}
-        <footer className="h-16 bg-[#161922] border-t border-gray-800 flex items-center px-8 text-gray-500 text-sm">
-           {location.pathname.includes('/run') ? 'Execution Mode Active' : 'System Ready'}
-        </footer>
       </div>
     </div>
   );
