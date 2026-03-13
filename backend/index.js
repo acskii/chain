@@ -7,6 +7,7 @@ import express from "express";
 import { createConnection } from "./db.js";
 import chainRoutes from "./chain/route.js";
 import executionRoutes from "./execution/route.js";
+import userRoutes from "./user/route.js";
 import runRoutes from "./run/route.js";
 
 const DEFAULT_PORT = 5000;
@@ -21,6 +22,7 @@ app.use(express.json());
 // Routes
 app.use('/api/chain', chainRoutes);
 app.use('/api/execution', executionRoutes);
+app.use('/api/user', userRoutes);
 app.use('/run', runRoutes);
 
 // Listener

@@ -6,7 +6,12 @@ import { createOne } from "./controllers/create.js";
 import { updateOne } from "./controllers/update.js";
 import { deleteOne } from "./controllers/delete.js";
 
+/* Authorisation */
+import verify from "../middleware/auth.js";
+
 const router = express.Router();
+
+router.use(verify);
 
 /* /chain */
 router.get('/', getAll);

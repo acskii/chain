@@ -5,7 +5,12 @@ import { getAll, getOne, getByChain } from "./controllers/get.js";
 import { createOne } from "./controllers/create.js";
 import { deleteByChain } from "./controllers/delete.js";
 
+/* Authorisation */
+import verify from "../middleware/auth.js";
+
 const router = express.Router();
+
+router.use(verify);
 
 /* /execution */
 router.get('/', getAll);

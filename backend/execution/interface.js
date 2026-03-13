@@ -4,9 +4,10 @@ import Chain from "../chain/model.js";
 export default {
     /* CREATE */
     // Record a completed run of a chain
-    async createExecution(chainId, stepInputs, response, runHash, chainHash) {
+    async createExecution(userId, chainId, stepInputs, response, runHash, chainHash) {
         return await Execution.create({
             chainId,
+            userId,
             stepInputs,
             response,
             runHash,
@@ -15,48 +16,49 @@ export default {
     },
 
     /* READ */
-    async getExecutionsByChain(chainId, page = 0, limit = 10) {
+    async getExecutionsByChain(userId, chainId, page = 0, limit = 10) {
         const skip = (page - 1) * limit;
         const chain = await Chain.findById(chainId);
         const chainHash = chain.hash;
         const [data, total] = await Promise.all([
-            Execution.find({ chainHash: chainHash }).skip(skip).limit(limit).sort({ createdAt: -1 }),
+            Execution.find({ userId: userId, chainHash: chainHash }).skip(skip).limit(limit).sort({ createdAt: -1 }),
             Execution.countDocuments({})
         ]);
         
         return { data, total, page, totalPages: Math.ceil(total / limit) };
     },
 
-    async getAllExecutions(page = 0, limit = 10) {
+    async getAllExecutions(userId, page = 0, limit = 10) {
         const skip = (page - 1) * limit;
         const [data, total] = await Promise.all([
-            Execution.find({}).skip(skip).limit(limit).sort({ createdAt: -1 }),
+            Execution.find({ userId: userId }).skip(skip).limit(limit).sort({ createdAt: -1 }),
             Execution.countDocuments({})
         ]);
         
         return { data, total, page, totalPages: Math.ceil(total / limit) };
     },
 
-    async getExecutionById(id) {
-        return Execution.findById(id);
+    async getExecutionById(userId, id) {
+        return Execution.findOne({ _id: id, userId: userId });
     },
 
-    async findSuccessfulByHash(hash) {
+    async findSuccessfulByHash(userId, hash) {
         return await Execution.findOne({ 
+            userId: userId,
             runHash: hash, 
             status: 'success' 
         }).sort({ createdAt: -1 });
     },
 
     /* DELETE */
-    async deleteExecutions(chainId) {
-        return await Execution.deleteMany({ chainId });
+    async deleteExecutions(userId, chainId) {
+        return await Execution.deleteMany({ chainId: chainId, userId: userId });
     },
 
     /* UPDATE */
-    async updateExecution(id, update) {
+    async updateExecution(userId, id, update) {
         return await Execution.findByIdAndUpdate(
-            id,
+            { _id: id, userId: userId },
             { $set: update },
             { returnDocument: 'after', runValidators: true }
         );
