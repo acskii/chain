@@ -5,11 +5,11 @@
 import { call } from "../ai/service.js";
 import executionInterface from "../execution/interface.js";
 
-export default async function startPipeline(executionId, chain, stepInputs) {
+export default async function startPipeline(executionId, userId, chain, stepInputs) {
     let lastResponse = "";
 
     try {
-        await executionInterface.updateExecution(executionId, { 
+        await executionInterface.updateExecution(userId, executionId, { 
             status: 'pending', 
             'progress.totalSteps': chain.steps.length
         });
@@ -31,20 +31,20 @@ export default async function startPipeline(executionId, chain, stepInputs) {
             lastResponse = response;
 
             // update execution progress
-            await executionInterface.updateExecution(executionId, {
+            await executionInterface.updateExecution(userId, executionId, {
                 'progress.currentStep': step.order,
                 'progress.lastStepOutput': lastResponse
             });
         }
 
-        await executionInterface.updateExecution(executionId, {
+        await executionInterface.updateExecution(userId, executionId, {
             status: 'success',
             response: lastResponse
         });
 
     } catch (error) {
         console.log("[PIPELINE] => Error occured during chain execution: ", error);
-        await executionInterface.updateExecution(executionId, {
+        await executionInterface.updateExecution(userId, executionId, {
             status: 'error',
             errorDetails: error.message
         });

@@ -26,7 +26,7 @@ export const runChain = async (req, res) => {
         // Create hash for execution index
         const runHash = hash({ hash: chain.hash, inputs: stepInputs });
 
-        const cached = await executionInterface.findSuccessfulByHash(runHash);
+        const cached = await executionInterface.findSuccessfulByHash(req.userId, runHash);
         if (cached) {
             return res.status(200).json({
                 message: "Previous run found", 
@@ -41,6 +41,7 @@ export const runChain = async (req, res) => {
                 // check if limit exceeded before running
                 if (usage != 0) {
                     const execution = await executionInterface.createExecution(
+                        req.userId,
                         chainId, 
                         stepInputs, 
                         "pending..",
@@ -48,7 +49,7 @@ export const runChain = async (req, res) => {
                         chain.hash
                     );
 
-                    startPipeline(execution._id, chain, stepInputs);
+                    startPipeline(execution._id, req.userId, chain, stepInputs);
 
                     res.status(202).json({ 
                         message: "Chain started", 

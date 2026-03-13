@@ -7,6 +7,7 @@ import { Schema, model } from "mongoose";
 //      - Hash relating to step inputs 
 const executionSchema = new Schema({
     chainId: { type: Schema.Types.ObjectId, ref: 'Chain', required: true },
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     runHash: { type: String, index: true },
     chainHash: {type: String, index: true },
     status: { type: String, enum: ['pending', 'error', 'success'], default: 'pending' },

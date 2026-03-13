@@ -17,11 +17,12 @@ const stepSchema = new Schema({
 }, {_id: true});
 
 /* Chain Schema */
-// NOTE: Each chain will belong to a user, this will be implemented later
 const chainSchema = new Schema({
     name: { type: String, required: true, trim: true },
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     hash: { type: String, required: true },
-    steps: [stepSchema]
+    steps: [stepSchema],
+    public: { type: Boolean, default: false }
 }, { timestamps: true });
 
 export default model('Chain', chainSchema);
