@@ -51,7 +51,7 @@ export default {
             updateData.steps = steps;
             updateData.hash = hash([...steps, id]);
         }
-        if (pub) updateData.public = pub;
+        if (pub !== undefined) updateData.public = pub;
 
         return await Chain.findOneAndUpdate(
             { _id: id, userId: userId },
