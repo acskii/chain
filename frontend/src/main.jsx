@@ -5,14 +5,17 @@ import { ToastProvider } from './contexts/ToastContext'
 import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
+import { AuthProvider } from './contexts/AuthContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
         <AppProvider>
-          <ToastProvider>
-            <App />
-          </ToastProvider>
+          <AuthProvider>
+            <ToastProvider>
+              <App />
+            </ToastProvider>
+          </AuthProvider>
         </AppProvider>
     </BrowserRouter>
   </StrictMode>,

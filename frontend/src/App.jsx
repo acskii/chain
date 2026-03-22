@@ -7,6 +7,11 @@ import HomePage from './pages/home/HomePage';
 import SettingsPage from './pages/settings/page';
 import SideMenu from './components/general/SideMenu';
 import BuilderPage from './pages/chains/BuilderPage';
+import LoginPage from './pages/user/LoginPage';
+import ProtectedRoute from './components/general/ProtectedRoute';
+import SignupPage from './pages/user/SignupPage';
+import Header from './components/general/Header';
+import ProfilePage from './pages/user/ProfilePage';
 
 export default function App() {
   const { toast } = useApp();
@@ -26,27 +31,20 @@ export default function App() {
       {/* Main Container */}
       <div className="flex-1 flex flex-col">
         {/* Topbar */}
-        <header className="h-20 bg-[#161922] border-bottom border-gray-800 flex items-center justify-between px-8">
-          <div className="flex flex-row items-center gap-2">
-            <img src="/icon.png" width={30} height={30}></img>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-500 via-blue-400 to-cyan-400 bg-clip-text text-transparent">
-              CHAIN ARCHITECT
-            </h1>
-          </div>
-          {/* <div className="flex gap-6 items-center">
-            <VscGithub size={30} className="text-gray-400 hover:text-white cursor-pointer" />
-          </div> */}
-        </header>
+        <Header />
 
         {/* Content Area */}
         <main className="flex-1 overflow-y-auto p-12 bg-[#0f1117]">
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/home" element={<HomePage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/chains" element={<ChainsPage />} />
-            <Route path="/executions" element={<ExecutionsPage />} />
-            <Route path="/run/:id" element={<BuilderPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/u/:id" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+            <Route path="/chains" element={<ProtectedRoute><ChainsPage /></ProtectedRoute>} />
+            <Route path="/executions" element={<ProtectedRoute><ExecutionsPage /></ProtectedRoute>} />
+            <Route path="/run/:id" element={<ProtectedRoute><BuilderPage /></ProtectedRoute>} />
           </Routes>
         </main>
       </div>
