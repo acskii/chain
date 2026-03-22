@@ -10,6 +10,16 @@ export const getAll = async (req, res) => {
     }
 };
 
+export const getByUser = async (req, res) => {
+    try {
+        const { page, limit } = req.query;
+        const chains = await chainInterface.getChainsByUser(req.params.id, Number(page) || 1, Number(limit) || 10);
+        res.json(chains);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 export const getOne = async (req, res) => {
   try {
     const chain = await chainInterface.getChainById(req.params.id);
