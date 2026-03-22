@@ -12,7 +12,7 @@ export const getAll = async (req, res) => {
 
 export const getOne = async (req, res) => {
   try {
-    const chain = await chainInterface.getChainById(req.userId, req.params.id);
+    const chain = await chainInterface.getChainById(req.params.id);
     if (!chain) return res.status(404).json({ error: "Chain not found" });
     res.json(chain);
   } catch (error) {

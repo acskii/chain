@@ -1,4 +1,4 @@
-
+import UserInterface from "../interface.js";
 
 export default async function getProfile(req, res) {
     try {
