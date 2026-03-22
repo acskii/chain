@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../contexts/ToastContext';
-import { chainAPI, executionAPI } from '../../contexts/api';
+import { chainAPI, executionAPI } from '../../contexts/APIContext';
 
 /* Components */
 import Pagination from '../../components/general/Pagination';

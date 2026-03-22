@@ -4,16 +4,15 @@ import {
   LuLogIn, LuArrowRight, LuCpu, LuLink
 } from 'react-icons/lu';
 
+import { useAuth } from '../../contexts/AuthContext';
+
 export default function HomePage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isLoggedIn = !!user;
   
-  // Replace with your actual auth state logic
-  const isLoggedIn = false; 
-
   return (
     <div className="w-full bg-[#0f1117] text-white selection:bg-blue-500/30">
-      
-      {/* 1. HERO & PRIMARY AUTH GATE */}
       <section className="min-h-screen flex flex-col items-center justify-center px-6 text-center bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent">
         <h2 className="text-7xl md:text-9xl font-black mb-8 tracking-tighter leading-[0.9]">
           Build. Chain. <br/>
@@ -41,17 +40,19 @@ export default function HomePage() {
               </button>
             </>
           ) : (
-            <button 
-              onClick={() => navigate('/chains')}
-              className="bg-blue-600 hover:bg-blue-500 px-12 py-6 rounded-2xl cursor-pointer font-black text-xl flex items-center gap-4 transition-all shadow-[0_20px_80px_rgba(37,99,235,0.25)]"
-            >
-              Go to chains <LuArrowRight size={24} />
-            </button>
+            <div className="flex flex-col gap-4">            
+              <button 
+                onClick={() => navigate('/chains')}
+                className="bg-blue-600 hover:bg-blue-500 py-4 rounded-2xl cursor-pointer font-black text-xl flex items-center justify-center gap-4 transition-all shadow-[0_20px_80px_rgba(37,99,235,0.25)]"
+              >
+                Go to chains <LuArrowRight size={24} />
+              </button>
+              <p className="text-gray-600 font-bold uppercase tracking-widest text-sm">Logged in as {user.email}</p>
+            </div>
           )}
         </div>
       </section>
 
-      {/* 2. CHAINS INVENTORY PREVIEW */}
       <FeatureSection 
         tag="Repository"
         title="Chains Inventory"
@@ -75,7 +76,6 @@ export default function HomePage() {
         }
       />
 
-      {/* 3. EXECUTION HISTORY PREVIEW */}
       <FeatureSection 
         tag="History"
         title="Execution Logs"
@@ -100,7 +100,6 @@ export default function HomePage() {
         }
       />
 
-      {/* 4. USER PROFILE & SECURITY */}
       <FeatureSection 
         tag="Account"
         title="Profile Control"
@@ -120,7 +119,6 @@ export default function HomePage() {
         }
       />
 
-      {/* 5. THE FORMULA: COMBINING THE STEPS */}
       <section className="py-40 bg-blue-600/5 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-24">
@@ -155,7 +153,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 6. FINAL CTA & REDIRECTS */}
       <section className="py-40 text-center px-6 border-t border-gray-800/30">
         <h2 className="text-6xl font-black mb-12 tracking-tight">Ready to chain?</h2>
         <div className="flex flex-col md:flex-row gap-6 justify-center">
