@@ -19,11 +19,11 @@ export default {
         return await Chain.findById(id);
     },
 
-    async getChainByUser(userId, page = 1, limit = 10) {
+    async getChainsByUser(userId, page = 1, limit = 10) {
         // Get all chains by a specific user paginated
         const skip = (page - 1) * limit;
         const [data, total] = await Promise.all([
-            Chain.find({ userId: userId }).skip(skip).limit(limit).sort({ createdAt: -1 }),
+            Chain.find({ userId: userId, public: true }).skip(skip).limit(limit).sort({ createdAt: -1 }),
             Chain.countDocuments({})
         ]);
         return { data, total, page, totalPages: Math.ceil(total / limit) };
@@ -43,7 +43,7 @@ export default {
     },
 
     /* UPDATE */
-    async updateChain(userId, id, { name, steps }) {    
+    async updateChain(userId, id, { name, steps, pub }) {    
         const updateData  = {};
         
         if (name) updateData.name = name;
@@ -51,6 +51,7 @@ export default {
             updateData.steps = steps;
             updateData.hash = hash([...steps, id]);
         }
+        if (pub) updateData.public = pub;
 
         return await Chain.findOneAndUpdate(
             { _id: id, userId: userId },
