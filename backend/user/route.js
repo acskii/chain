@@ -2,7 +2,7 @@ import express from "express";
 
 /* Get Controllers */
 import { register, login } from "./controllers/email.js";
-import { auth, callback } from "./controllers/google.js";
+import { auth, callback, checkGoogleCredentials } from "./controllers/google.js";
 import oauth from "./controllers/oauth.js";
 import getProfile from "./controllers/profile.js";
 
@@ -21,7 +21,7 @@ router.post('/register', register);
 router.post('/login', login);
 
 /* Google OAuth */
-router.post('/auth/google', auth);
-router.post('/auth/google/callback', callback, oauth);
+router.get('/auth/google', checkGoogleCredentials, auth);
+router.get('/auth/google/callback', checkGoogleCredentials, callback, oauth);
 
 export default router;
