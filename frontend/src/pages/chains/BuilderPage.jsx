@@ -5,9 +5,10 @@ import { useState, useEffect, useRef } from 'react';
 /* Contexts */
 import { useToast } from '../../contexts/ToastContext';
 import { useParams } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
 /* API Backend */
-import { chainAPI, executionAPI } from '../../contexts/api';
+import { chainAPI, executionAPI } from '../../contexts/APIContext';
 
 /* Components */
 import StepLevel from '../../components/runChain/StepLevel';
@@ -17,9 +18,11 @@ import LoadingIcon from '../../components/general/LoadingIcon';
 import ChainHead from '../../components/runChain/ChainHead';
 
 /* Icons */
-import { LuPlay, LuSave, LuRotateCcw, LuChevronDown, LuHistory, LuCpu } from 'react-icons/lu';
+import { LuLock, LuPlay, LuSave, LuRotateCcw, LuChevronDown, LuHistory, LuCpu } from 'react-icons/lu';
+import { RiGlobalLine } from "react-icons/ri";
 import { FaCheck } from "react-icons/fa";
 import { BiLoader } from "react-icons/bi";
+
 import Dropdown from '../../components/general/Dropdown';
 /* --- */
 
@@ -27,16 +30,19 @@ export default function BuilderPage() {
   /* Contexts */
   const { id } = useParams();
   const { showToast } = useToast();
+  const { user } = useAuth();
   
   /* States */
   const [chain, setChain] = useState(null);
   const [steps, setSteps] = useState([]);
   const [executionHistory, setExecutionHistory] = useState([]);
   const [stepInputs, setStepInputs] = useState({});
+  const [isPublic, setPublic] = useState(false);
 
   // Booleans
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
+  const isOwner = user.userId === chain?.userId;
 
   // Run Progress
   const [status, setStatus] = useState('idle');
@@ -56,6 +62,7 @@ export default function BuilderPage() {
       const res = await chainAPI.getOne(id);
       setChain(res.data);
       setSteps(res.data.steps.sort((a, b) => a.order - b.order));
+      setPublic(res.data.public);
     } catch (error) {
       if (error.status && error.status == 500) {
         showToast("Server Connection Error, please try again later", "error", true);
@@ -82,6 +89,7 @@ export default function BuilderPage() {
 
   /* Update chain structure on prompt change before update */
   const handlePromptChange = (index, newValue) => {
+    if (!isOwner) return;
     const updatedSteps = [...steps];
     updatedSteps[index].prompt = newValue;
     setSteps(updatedSteps);
@@ -90,6 +98,7 @@ export default function BuilderPage() {
 
   /* Change chain name before update */
   const handleNameChange = (newName) => {
+    if (!isOwner) return;
     setChain(prev => ({ ...prev, name: newName }));
     setHasChanges(true);
   };
@@ -102,6 +111,7 @@ export default function BuilderPage() {
 
   /* Re-organise steps upon step delete */
   const handleStepDelete = (index) => {
+    if (!isOwner) return;
     const filteredSteps = steps.filter((_, i) => i !== index);
     const reindexedSteps = filteredSteps.map((step, i) => ({
       ...step,
@@ -180,11 +190,13 @@ export default function BuilderPage() {
 
   /* Update chain changes using API backend */
   const saveChainChanges = async () => {
+    if (!isOwner) return;
     try {
       setIsSaving(true);
       await chainAPI.update(id, { 
         name: chain.name, 
-        steps: steps 
+        steps: steps,
+        pub: isPublic
       });
       setHasChanges(false);
       setIsSaving(false);
@@ -207,7 +219,23 @@ export default function BuilderPage() {
 
   return (
     <div className="flex flex-col h-full relative">
-      <div className="fixed right-1/15 top-1/4 -translate-y-1/2 z-50 flex flex-col gap-4">
+      <div className="fixed right-1/15 top-1/4 -translate-y-1/2 z-50 flex flex-col items-center gap-4">
+        {isOwner && (
+          <button 
+            onClick={() => {
+              setPublic(!isPublic); 
+              setHasChanges(true);
+            }}
+            className={`flex items-center gap-2 cursor-pointer px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all border ${
+              isPublic 
+              ? 'bg-emerald-500/10 border-emerald-500 text-emerald-500' 
+              : 'bg-gray-800 border-gray-700 text-gray-500'
+            }`}
+          >
+            {isPublic ? <RiGlobalLine size={18} /> : <LuLock size={18} />}
+            {isPublic ? "Public" : "Private"}
+          </button>
+        )}
         <Dropdown 
           icon={LuHistory}
           title="Execution History"
@@ -268,7 +296,8 @@ export default function BuilderPage() {
                 onPromptChange={(val) => handlePromptChange(step.order - 1, val)}
                 isActive={status === 'pending' && currentStepProgress === step.order}
                 isCompleted={currentStepProgress > step.order || (status === 'success' && currentStepProgress >= step.order)}
-                onDelete={() => handleStepDelete(index)}
+                onDelete={isOwner ? () => handleStepDelete(index) : null}
+                readOnly={!isOwner}
               />
               {index < steps.length - 1 && (
                 <div className="relative h-20 flex flex-col items-center">
@@ -288,13 +317,15 @@ export default function BuilderPage() {
             </div>
           )}
 
-          <AddStepNode 
-            onAdd={(type) => {
-              const newSteps = [...steps, { order: steps.length + 1, type: type, prompt: "" }];
-              setSteps(newSteps);
-              setHasChanges(true);
-            }} 
-          />
+          {isOwner && (
+            <AddStepNode 
+              onAdd={(type) => {
+                const newSteps = [...steps, { order: steps.length + 1, type: type, prompt: "" }];
+                setSteps(newSteps);
+                setHasChanges(true);
+              }} 
+            />
+          )}
       </div>
 
       <div className="fixed bottom-0 left-[48px] right-0 h-24 bg-[#0f1117]/80 border-t border-gray-800 flex items-center justify-between px-12 z-50 backdrop-blur-xl">
@@ -342,7 +373,7 @@ export default function BuilderPage() {
             <LuRotateCcw size={18} /> Clear
           </button>
 
-          {hasChanges && (
+          {isOwner && hasChanges && (
             <button 
               onClick={saveChainChanges}
               disabled={isSaving}
