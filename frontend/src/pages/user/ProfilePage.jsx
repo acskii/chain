@@ -9,6 +9,7 @@ import LoadingIcon from '../../components/general/LoadingIcon';
 import Pagination from '../../components/general/Pagination';
 
 import { LuLogOut, LuPlay, LuUser, LuClock, LuList } from 'react-icons/lu';
+import { FaQuestion } from 'react-icons/fa';
 
 export default function ProfilePage() {
     const { id } = useParams();
@@ -88,6 +89,15 @@ export default function ProfilePage() {
                     Published Chains
                 </h2>
                 
+                {(publicChains.length === 0 && !loading) && (
+                    <div className="flex flex-col items-center justify-center text-center py-20">
+                        <div className="bg-gray-800/30 p-10 rounded-full mb-4 text-gray-600">
+                            <FaQuestion size={60} className="animate-pulse" />
+                        </div>
+                        <h2 className="text-3xl font-bold mb-2 text-white">No chains found!</h2>
+                        <p className="text-gray-500 text-lg max-w-md">This user has not published a chain yet.</p>
+                    </div>
+                )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {!loading && publicChains.map(chain => (
