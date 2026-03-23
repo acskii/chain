@@ -1,4 +1,4 @@
-import { LuHouse, LuLink, LuMemoryStick, LuMenu, LuSettings } from "react-icons/lu";
+import { LuHouse, LuLink, LuLogOut, LuMemoryStick, LuMenu, LuSettings } from "react-icons/lu";
 import { useApp } from '../../contexts/AppContext';
 import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
@@ -8,6 +8,7 @@ const MENU_ITEMS = [
     {route: "/chains", label: "Chains", icon: LuLink},
     {route: "/executions", label: "Executions", icon: LuMemoryStick},
     {route: "/settings", label: "Settings", icon: LuSettings},
+    {route: "/logout", label: "Logout", icon: LuLogOut},
 ];
 
 export default function SideMenu() {
