@@ -7,5 +7,5 @@ import generateToken from "../util/token.js";
 export default async function(req, res) {
     const token = generateToken(req.user);
 
-    res.status(200).json({ token: token });
+    res.redirect(`${process.env.REDIRECT_URI_LOGIN}?user_token=${token}`);
 };
