@@ -13,7 +13,7 @@ import { FaQuestion } from 'react-icons/fa';
 
 export default function ProfilePage() {
     const { id } = useParams();
-    const { user, logout } = useAuth();
+    const { user } = useAuth();
     const navigate = useNavigate();
     const { showToast } = useToast();
 
@@ -77,7 +77,7 @@ export default function ProfilePage() {
 
                     {isOwner && (
                         <button 
-                            onClick={() => { logout(); navigate('/'); }}
+                            onClick={() => { navigate('/logout'); }}
                             className="flex cursor-pointer items-center gap-3 px-10 py-5 bg-red-500/10 border border-red-500/20 text-red-500 rounded-[2rem] font-black hover:bg-red-500 hover:text-white transition-all shadow-xl active:scale-95"
                         >
                             <LuLogOut size={22} /> Logout

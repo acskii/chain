@@ -20,6 +20,9 @@ const app = express();
 app.use(express.json());
 
 // Routes
+app.get('/', (_, res) => {
+    res.status(200).send('API is running');
+});
 app.use('/api/chain', chainRoutes);
 app.use('/api/execution', executionRoutes);
 app.use('/api/user', userRoutes);
@@ -28,3 +31,5 @@ app.use('/run', runRoutes);
 // Listener
 const port = process.env.PORT || DEFAULT_PORT;
 app.listen(port, () => console.log(`[Server] => Running on port ${port}`));
+
+export default app;

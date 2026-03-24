@@ -12,6 +12,7 @@ import ProtectedRoute from './components/general/ProtectedRoute';
 import SignupPage from './pages/user/SignupPage';
 import Header from './components/general/Header';
 import ProfilePage from './pages/user/ProfilePage';
+import LogoutPage from './pages/user/LogoutPage';
 
 export default function App() {
   const { toast } = useApp();
@@ -39,6 +40,7 @@ export default function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/home" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/logout" element={<LogoutPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/u/:id" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
