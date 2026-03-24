@@ -10,8 +10,7 @@ export default function SignupPage() {
   const [error, setError] = useState('');
 
   const handleGoogleLogin = () => {
-    // Direct browser to your Express Google Auth route
-    window.location.href = "http://localhost:5000/api/user/auth/google";
+    window.location.href = import.meta.env.GOOGLE_AUTH_URL;
   };
 
   const handleSignup = async (e) => {
