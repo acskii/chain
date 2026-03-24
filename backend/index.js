@@ -4,6 +4,7 @@
 */
 
 import express from "express";
+import cors from "cors";
 import { createConnection } from "./db.js";
 import chainRoutes from "./chain/route.js";
 import executionRoutes from "./execution/route.js";
@@ -18,6 +19,14 @@ createConnection();
 // Start server
 const app = express();
 app.use(express.json());
+
+// CORS
+const corsOptions = {
+  origin: process.env.FRONTEND_URL,
+  optionsSuccessStatus: 200 
+};
+
+app.use(cors(corsOptions));
 
 // Routes
 app.get('/', (_, res) => {
