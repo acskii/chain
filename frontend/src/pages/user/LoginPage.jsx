@@ -12,7 +12,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
 
   const handleGoogleLogin = () => {    
-    window.location.href = import.meta.env.GOOGLE_AUTH_URL;
+    window.location.href = import.meta.env.VITE_GOOGLE_AUTH_URL;
   };
 
   const handleSubmit = async (e) => {
