@@ -1,7 +1,10 @@
-/* Imports */
+/* React */
 import { useEffect, useState } from 'react';
+
+/* Contexts */
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../contexts/ToastContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { chainAPI, executionAPI } from '../../contexts/APIContext';
 
 /* Components */
@@ -9,26 +12,36 @@ import Pagination from '../../components/general/Pagination';
 import LoadingIcon from '../../components/general/LoadingIcon';
 
 /* Icons */
-import { LuPlay, LuPlus, LuClock, LuList, LuTrash2 } from 'react-icons/lu';
-import { FaQuestion, FaCheckSquare, FaRegCheckSquare } from "react-icons/fa";
+import { LuPlay, LuPlus, LuClock, LuList, LuTrash2, LuArrowRight } from 'react-icons/lu';
+import { FaBan, FaQuestion, FaCheckSquare, FaRegCheckSquare } from "react-icons/fa";
 
 export default function ChainsPage() {
+  // Contexts
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { user } = useAuth();
 
-  /* States */
+  // Loading State
   const [loading, setLoading] = useState(true);
+
+  // Chain Data
   const [chains, setChains] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+
+  // Deletion mode states
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedChains, setSelectedChains] = useState([]);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchChains = async (pageNumber) => {
-    setLoading(true);
+    if (!user) return;
+
     try {
+      setLoading(true);
+
       const res = await chainAPI.getAll(pageNumber);
+  
       const cs = res.data.data;
       const complete = await Promise.all(
         cs.map(async (chain) => {
@@ -49,8 +62,8 @@ export default function ChainsPage() {
   };
 
   useEffect(() => {
-    fetchChains(1);
-  }, []);
+    if (user) fetchChains(1);
+  }, [user]);
 
   /* Selection Logic */
   const toggleSelect = (id) => {
@@ -82,6 +95,19 @@ export default function ChainsPage() {
     setIsSelectionMode(!isSelectionMode);
     setSelectedChains([]);
   };
+
+  // Just in case
+  if (!user) return (
+    <div className="flex flex-col items-center justify-center h-[60vh] text-center">
+      <div className="bg-gray-800/30 p-10 rounded-full mb-8">
+        <FaBan size={80} className="text-gray-600 animate-pulse" />
+      </div>
+      <h2 className="text-4xl font-bold mb-4">Need Log in</h2>
+        <p className="text-gray-500 text-xl max-w-md">
+          You cannot access this page unless you are logged in.
+        </p>
+    </div>
+  );
 
   return (
     <div className="max-w-6xl mx-auto px-4">
