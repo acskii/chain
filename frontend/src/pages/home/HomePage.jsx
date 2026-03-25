@@ -1,14 +1,22 @@
-import { useNavigate } from 'react-router-dom';
-import { FaUserCircle } from "react-icons/fa";
-import { 
-  LuLogIn, LuArrowRight, LuCpu, LuLink
-} from 'react-icons/lu';
+/* Home page component */
 
+/* Contexts */
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
+/* Components */
+import FeatureSection from '../../components/home/FeatureSection';
+import FormulaStep from '../../components/home/FormulaStep';
+
+/* Icons */
+import { FaUserCircle } from "react-icons/fa";
+import { LuLogIn, LuArrowRight, LuCpu, LuLink } from 'react-icons/lu';
+
 export default function HomePage() {
+  // Contexts
   const navigate = useNavigate();
   const { user } = useAuth();
+  
   const isLoggedIn = !!user;
   
   return (
@@ -106,7 +114,7 @@ export default function HomePage() {
         icon={FaUserCircle}
         desc="Manage your account preferences and track your usage metrics."
         benefit="Check account"
-        onClick={() => navigate('/profile')}
+        onClick={() => navigate(`/u/${user.userId}`)}
         imageSlot={
           <div className="relative group cursor-pointer overflow-hidden rounded-[2.5rem] border border-gray-800 bg-[#161922] p-10 flex flex-col items-center transition-all hover:border-purple-500">
              <div className="w-20 h-20 rounded-full bg-gray-800 mb-4 flex items-center justify-center">
@@ -173,49 +181,6 @@ export default function HomePage() {
           )}
         </div>
       </section>
-    </div>
-  );
-}
-
-/* --- REUSABLE SUB-COMPONENTS --- */
-
-function FeatureSection({ tag, title, icon: Icon, desc, benefit, imageSlot, reverse, onClick }) {
-  return (
-    <section className={`py-32 px-6 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center ${reverse ? 'lg:flex-row-reverse' : ''}`}>
-      <div className={reverse ? 'lg:order-2' : ''}>
-        <span className="text-blue-500 font-black tracking-[0.3em] uppercase text-sm mb-4 block">{tag}</span>
-        <div className="flex items-center gap-4 mb-6">
-          <div className="p-3 bg-blue-500/10 rounded-xl border border-blue-500/20">
-            <Icon className="text-blue-500" size={32} />
-          </div>
-          <h3 className="text-5xl font-black tracking-tight">{title}</h3>
-        </div>
-        <p className="text-xl text-gray-400 leading-relaxed mb-8">{desc}</p>
-        <button 
-          onClick={onClick}
-          className="flex items-center gap-3 cursor-pointer text-white font-bold bg-[#161922] border border-gray-800 hover:border-blue-500 px-6 py-3 rounded-xl transition-all group"
-        >
-          <span>{benefit}</span>
-          <LuArrowRight className="group-hover:translate-x-1 transition-transform" />
-        </button>
-      </div>
-      <div className={`${reverse ? 'lg:order-1' : ''}`}>
-        {imageSlot}
-      </div>
-    </section>
-  );
-}
-
-function FormulaStep({ step, title, desc, isLast }) {
-  return (
-    <div className="relative flex items-start gap-10 group">
-      <div className="w-20 h-20 rounded-[2rem] bg-[#161922] border-2 border-blue-500 flex items-center justify-center shrink-0 z-10 font-black text-2xl text-blue-500 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 shadow-xl">
-        {step}
-      </div>
-      <div className="pt-4">
-        <h4 className="text-3xl font-black mb-2 uppercase tracking-tight">{title}</h4>
-        <p className="text-xl text-gray-500 max-w-2xl font-medium">{desc}</p>
-      </div>
     </div>
   );
 }
