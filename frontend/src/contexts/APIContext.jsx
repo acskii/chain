@@ -50,6 +50,8 @@ export const chainAPI = {
 
 export const userAPI = {
   getProfile: async (id = null) => api.get(`/user/profile${id ? `?userId=${id}` : ''}`),
+  login: async (credentials) => api.post('/user/login', credentials),
+  register: async (credentials) => api.post('/user/register', credentials),
 };
 
 export default api;

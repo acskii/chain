@@ -8,7 +8,6 @@ const MENU_ITEMS = [
     {route: "/chains", label: "Chains", icon: LuLink},
     {route: "/executions", label: "Executions", icon: LuMemoryStick},
     {route: "/settings", label: "Settings", icon: LuSettings},
-    {route: "/logout", label: "Logout", icon: LuLogOut},
 ];
 
 export default function SideMenu() {

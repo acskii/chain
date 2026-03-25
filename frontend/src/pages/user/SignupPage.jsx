@@ -1,38 +1,55 @@
+/* Page component that allows users to create a new account on the platform */
+
+/* React */
 import { useState } from 'react';
+
+/* Contexts */
 import { useNavigate } from 'react-router-dom';
+import { userAPI } from '../../contexts/APIContext';
+import { useToast } from '../../contexts/ToastContext';
+
+/* Icons */
 import { LuMail, LuLock, LuArrowRight } from 'react-icons/lu';
 import { FcGoogle } from 'react-icons/fc';
-import api from '../../contexts/APIContext';
 
 export default function SignupPage() {
+   // Contexts
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ email: '', password: '' });
-  const [error, setError] = useState('');
+  const { showToast } = useToast(); 
+  
+  // Login Credentials (Email method)
+  const [emailCred, setEmailCred] = useState({ email: '', password: '' });
 
   const handleGoogleLogin = () => {
+    // Let back-end handle the OAuth authentication    
     window.location.href = import.meta.env.VITE_GOOGLE_AUTH_URL;
   };
 
   const handleSignup = async (e) => {
     e.preventDefault();
-    setError('');
+
     try {
-      await api.post('/user/register', formData);
-      navigate('/login');
-    } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Check your data.');
+      await userAPI.register(emailCred);
+
+      // Return to previous page
+      navigate('/login', { replace: true });
+    } catch (error) {
+      if (error.status == 409) {
+        // Email is already used in another user
+        showToast("Email already exists as another user, use another email.", "error");
+      } else {
+        showToast(error.message, "error");
+      }
     }
   };
 
   return (
     <div className="max-h-screen bg-[#0f1117] max-w-3xl text-white mx-auto xl:max-w-none flex items-start justify-center px-6 md:px-12 overflow-hidden selection:bg-blue-500/40">
-        {/* FORM */}
         <div>
           <div className="mb-16">
             <h2 className="text-7xl md:text-8xl font-black tracking-tighter leading-[0.9] mb-6">Start <span className="text-blue-500">Chaining!</span></h2>
           </div>
 
-          {/* Form Stack */}
           <div className="space-y-10">
             <button 
               onClick={handleGoogleLogin}
@@ -58,7 +75,7 @@ export default function SignupPage() {
                     required
                     className="w-full bg-[#161922] border-2 border-gray-800 focus:border-blue-500 rounded-3xl py-7 pl-16 pr-8 outline-none transition-all font-medium text-xl placeholder-gray-700"
                     placeholder="Email"
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    onChange={(e) => setEmailCred({...emailCred, email: e.target.value})}
                   />
                 </div>
               </div>
@@ -72,12 +89,10 @@ export default function SignupPage() {
                     required
                     className="w-full bg-[#161922] border-2 border-gray-800 focus:border-blue-500 rounded-3xl py-7 pl-16 pr-8 outline-none transition-all font-medium text-xl placeholder-gray-700"
                     placeholder="Password"
-                    onChange={(e) => setFormData({...formData, password: e.target.value})}
+                    onChange={(e) => setEmailCred({...emailCred, password: e.target.value})}
                   />
                 </div>
               </div>
-
-               {error && <p className="text-red-500 text-lg font-bold ml-2 bg-red-500/10 p-4 rounded-xl border border-red-500/30">{error}</p>}
 
               <button 
                 type="submit"

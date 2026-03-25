@@ -1,36 +1,55 @@
+/* Page component that allows users to enter credentials and log in to their account */
+
+/* React */
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+
+/* Contexts */
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import { userAPI } from '../../contexts/APIContext';
+import { useToast } from '../../contexts/ToastContext';
+
+/* Icons */
 import { LuMail, LuLock, LuArrowRight } from 'react-icons/lu';
 import { FcGoogle } from 'react-icons/fc';
-import { useAuth } from '../../contexts/AuthContext';
-import api from '../../contexts/APIContext';
 
 export default function LoginPage() {
+  // Contexts
   const navigate = useNavigate();
+  const location = useLocation();
+  const { showToast } = useToast(); 
   const { saveToken } = useAuth();
-  const [formData, setFormData] = useState({ email: '', password: '' });
-  const [error, setError] = useState('');
+  
+  // Login Credentials (Email method)
+  const [emailCred, setEmailCred] = useState({ email: '', password: '' });
 
-  const handleGoogleLogin = () => {    
+  const handleGoogleLogin = () => {
+    // Let back-end handle the OAuth authentication    
     window.location.href = import.meta.env.VITE_GOOGLE_AUTH_URL;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      const res = await api.post('/user/login', formData);
+      const res = await userAPI.login(emailCred);
       saveToken(res.data.token);
-      navigate('/chains');
-    } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+
+      // Return to previous page
+      navigate(location.state?.from || '/', { replace: true });
+    } catch (error) {
+      if (error.status == 401) {
+        // Invalid credentials
+        showToast("Invalid email or password, please try again..", "error");
+      } else {
+        showToast(error.message, "error");
+      }
     }
   };
 
   return (
     <div className="max-h-screen bg-[#0f1117] max-w-3xl text-white xl:max-w-none flex items-start justify-center px-6 md:px-12 overflow-hidden selection:bg-blue-500/40">
-        {/* FORM */}
         <div>
-          {/* Main Title */}
           <div className="mb-16">
             <h2 className="text-7xl md:text-8xl font-black tracking-tighter leading-[0.9] mb-6">Welcome <span className="text-blue-500">Back!</span></h2>
           </div>
@@ -60,7 +79,7 @@ export default function LoginPage() {
                     required
                     className="w-full bg-[#161922] border-2 border-gray-800 focus:border-blue-500 rounded-3xl py-7 pl-16 pr-8 outline-none transition-all font-medium text-xl placeholder-gray-700"
                     placeholder="Email"
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    onChange={(e) => setEmailCred({...emailCred, email: e.target.value})}
                   />
                 </div>
               </div>
@@ -74,12 +93,10 @@ export default function LoginPage() {
                     required
                     className="w-full bg-[#161922] border-2 border-gray-800 focus:border-blue-500 rounded-3xl py-7 pl-16 pr-8 outline-none transition-all font-medium text-xl placeholder-gray-700"
                     placeholder="Password"
-                    onChange={(e) => setFormData({...formData, password: e.target.value})}
+                    onChange={(e) => setEmailCred({...emailCred, password: e.target.value})}
                   />
                 </div>
               </div>
-
-              {error && <p className="text-red-500 text-lg font-bold ml-2 bg-red-500/10 p-4 rounded-xl border border-red-500/30">{error}</p>}
 
               <button 
                 type="submit"

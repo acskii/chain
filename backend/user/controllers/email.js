@@ -5,10 +5,14 @@ import generateToken from "../util/token.js";
 export async function register(req, res) {
     const { email, password } = req.body;
     const hashedPass = await bcrypt.hash(password, 10);
-    const user = await userInterface.create({ email, password: hashedPass });
-    // Verification here
+    const exists = await userInterface.findByEmail(email);
 
-    res.status(201).json({ message: "User created. Please verify your email." });
+    if (exists) {
+        res.status(409).json({ message: "Email is already used." })
+    } else {
+        await userInterface.create({ email, password: hashedPass });
+        res.status(201).json({ message: "User created." });
+    }
 };
 
 export async function login(req, res) {
