@@ -1,12 +1,15 @@
+/* Main contact between front-end and back-end */ 
 import axios from 'axios';
 
-const api = axios.create({
-  baseURL: (import.meta.env.VITE_API_URL + "/api" || "/api")
-});
+/*
+  LOCAL DEVELOPMENT -> Uses Proxy -> Keep VITE_API_URL = NULL AND PROXY_API_URL = http://localhost:5000/
+  PRODUCTION -> Uses direct API backend url -> VITE_API_URL = ... WITH NO TRAILING FORWARD SLASH
+*/
+const API_BASE_URL = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL + "/api" : "/api";
+const RUN_BASE_URL = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL + "/run" : "/run";
 
-const run = axios.create({
-  baseURL: (import.meta.env.VITE_API_URL + "/run" || "/run")
-})
+const api = axios.create({ baseURL: API_BASE_URL });
+const run = axios.create({ baseURL: RUN_BASE_URL });
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('user_token');
