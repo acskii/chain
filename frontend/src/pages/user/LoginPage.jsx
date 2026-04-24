@@ -12,13 +12,14 @@ import { useToast } from '../../contexts/ToastContext';
 /* Icons */
 import { LuMail, LuLock, LuArrowRight } from 'react-icons/lu';
 import { FcGoogle } from 'react-icons/fc';
+import { AiFillMeh } from "react-icons/ai";
 
 export default function LoginPage() {
   // Contexts
   const navigate = useNavigate();
   const location = useLocation();
   const { showToast } = useToast(); 
-  const { saveToken } = useAuth();
+  const { saveToken, user } = useAuth();
   
   // Login Credentials (Email method)
   const [emailCred, setEmailCred] = useState({ email: '', password: '' });
@@ -46,6 +47,21 @@ export default function LoginPage() {
       }
     }
   };
+
+  if (user) return (
+      <div className="flex flex-col items-center justify-center h-[60vh] text-center">
+        <div className="bg-gray-800/30 p-10 rounded-full mb-8">
+          <AiFillMeh size={80} className="text-gray-600 animate-pulse" />
+        </div>
+        <h2 className="text-4xl font-bold mb-4">Already Logged In</h2>
+        <p className="text-gray-500 text-xl max-w-md">
+          You are already logged in as <span className="font-bold">{user.email}</span>.
+        </p>
+        <p className="text-gray-500 text-xl max-w-md">
+          Please logout before you can access this page.
+        </p>
+      </div>
+    );
 
   return (
     <div className="max-h-screen bg-[#0f1117] max-w-3xl text-white xl:max-w-none flex items-start justify-center px-6 md:px-12 overflow-hidden selection:bg-blue-500/40">
