@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../contexts/ToastContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { executionAPI, chainAPI } from '../../contexts/APIContext';
 import ExecutionRow from '../../components/executions/ExecutionRow';
 import { 
@@ -10,22 +11,27 @@ import {
   LuSearch,
   LuLayers
 } from 'react-icons/lu';
+import { FaBan } from 'react-icons/fa';
 import { BiLoaderCircle } from "react-icons/bi";
 
 export default function ExecutionsPage() {
   const [executions, setExecutions] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedChains, setExpandedChains] = useState({});
   const { showToast } = useToast();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   useEffect(() => {
     loadExecutions();
   }, []);
 
   const loadExecutions = async () => {
+    if (!user) return;
+
     try {
+      setLoading(true);
       const res = await executionAPI.getAll();
       setExecutions(res.data.data);
     } catch (error) {
@@ -72,6 +78,18 @@ export default function ExecutionsPage() {
   };
 
   if (loading) return <div className="flex justify-center mt-20"><BiLoaderCircle className="animate-spin text-blue-500" size={48} /></div>;
+
+  if (!user) return (
+    <div className="flex flex-col items-center justify-center h-[60vh] text-center">
+      <div className="bg-gray-800/30 p-10 rounded-full mb-8">
+        <FaBan size={80} className="text-gray-600 animate-pulse" />
+      </div>
+      <h2 className="text-4xl font-bold mb-4">Need Log in</h2>
+        <p className="text-gray-500 text-xl max-w-md">
+          You cannot access this page unless you are logged in.
+        </p>
+    </div>
+  );
 
   return (
     <div className="max-w-7xl mx-auto p-4">
